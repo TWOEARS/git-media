@@ -138,53 +138,53 @@ module GitMedia
       end
 
       cmd = ARGV.shift # get the subcommand
-      cmd_opts = case cmd
-        when "filter-clean" # parse delete options
-          require 'git-media/filter-clean'
-          GitMedia::FilterClean.run!
-        when "filter-smudge"
-          require 'git-media/filter-smudge'
-          GitMedia::FilterSmudge.run!
-        when "clear" # parse delete options
-          require 'git-media/clear'
-          GitMedia::Clear.run!
-        when "pull"
-          require 'git-media/pull'
-          opts = Trollop::options do
-            opt :dir, "Pull only files for the current dir and subdirs"
-            opt :clean, "Remove local cache files after uploading"
-          end
-          GitMedia::Pull.run!(opts)
-        when "push"
-          require 'git-media/push'
-          opts = Trollop::options do
-            opt :clean, "Remove local cache files after uploading"
-          end
-          GitMedia::Push.run!(opts)
-        when "sync"
-          require 'git-media/sync'
-          opts = Trollop::options do
-            opt :dir, "Pull only files for the current dir and subdirs"
-            opt :clean, "Remove local cache files after uploading"
-          end
-          GitMedia::Sync.run!(opts)
-        when 'status'
-          require 'git-media/status'
-          opts = Trollop::options do
-            opt :dir, "Look only under the current dir for unpulled files"
-            opt :long, "Long status, listing all files"
-          end
-          GitMedia::Status.run!(opts)
-        when 'retroactively-apply'
-          require 'git-media/filter-branch'
-          GitMedia::FilterBranch.clean!
-          arg2 = "--index-filter 'git media index-filter #{ARGV.shift}'"
-          system("git filter-branch #{arg2} --tag-name-filter cat -- --all")
-          GitMedia::FilterBranch.clean!
-        when 'index-filter'
-          require 'git-media/filter-branch'
-          GitMedia::FilterBranch.run!
-        else
+      case cmd
+      when "filter-clean" # parse delete options
+        require 'git-media/filter-clean'
+        GitMedia::FilterClean.run!
+      when "filter-smudge"
+        require 'git-media/filter-smudge'
+        GitMedia::FilterSmudge.run!
+      when "clear" # parse delete options
+        require 'git-media/clear'
+        GitMedia::Clear.run!
+      when "pull"
+        require 'git-media/pull'
+        opts = Trollop::options do
+          opt :dir, "Pull only files for the current dir and subdirs"
+          opt :clean, "Remove local cache files after uploading"
+        end
+        GitMedia::Pull.run!(opts)
+      when "push"
+        require 'git-media/push'
+        opts = Trollop::options do
+          opt :clean, "Remove local cache files after uploading"
+        end
+        GitMedia::Push.run!(opts)
+      when "sync"
+        require 'git-media/sync'
+        opts = Trollop::options do
+          opt :dir, "Pull only files for the current dir and subdirs"
+          opt :clean, "Remove local cache files after uploading"
+        end
+        GitMedia::Sync.run!(opts)
+      when 'status'
+        require 'git-media/status'
+        opts = Trollop::options do
+          opt :dir, "Look only under the current dir for unpulled files"
+          opt :long, "Long status, listing all files"
+        end
+        GitMedia::Status.run!(opts)
+      when 'retroactively-apply'
+        require 'git-media/filter-branch'
+        GitMedia::FilterBranch.clean!
+        arg2 = "--index-filter 'git media index-filter #{ARGV.shift}'"
+        system("git filter-branch #{arg2} --tag-name-filter cat -- --all")
+        GitMedia::FilterBranch.clean!
+      when 'index-filter'
+        require 'git-media/filter-branch'
+        GitMedia::FilterBranch.run!
+      else
     print <<EOF
 usage: git media sync|pull|push|status|clear
 
@@ -211,8 +211,7 @@ usage: git media sync|pull|push|status|clear
                        'git log --pretty=format: --name-only --diff-filter=A | sort -u | egrep ".*\.(jpg|png)" > to_rewrite'
 
 EOF
-        end
-
+      end
     end
   end
 end
