@@ -8,9 +8,9 @@ Gem::Specification.new do |s|
   s.version = "0.1.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Scott Chacon", "Alexander Lebedev"]
-  s.date = "2014-10-20"
-  s.email = "alexander.lebedev@gmail.com"
+  s.authors = ["Scott Chacon", "Alexander Lebedev", "Hagen Wierstorf"]
+  s.date = "2015-07-29"
+  s.email = "hagen.wierstorf@tu-berlin.de"
   s.executables = ["git-media"]
   s.extra_rdoc_files = [
     "LICENSE",
@@ -33,6 +33,8 @@ Gem::Specification.new do |s|
     "lib/git-media/filter-clean.rb",
     "lib/git-media/filter-smudge.rb",
     "lib/git-media/filter-branch.rb",
+    "lib/git-media/pull.rb",
+    "lib/git-media/push.rb",
     "lib/git-media/status.rb",
     "lib/git-media/sync.rb",
     "lib/git-media/transport.rb",
@@ -44,7 +46,7 @@ Gem::Specification.new do |s|
     "spec/media_spec.rb",
     "spec/spec_helper.rb"
   ]
-  s.homepage = "http://github.com/alebedev/git-media"
+  s.homepage = "http://github.com/TWOEARS/git-media"
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.28"
   s.summary = "git-media"
