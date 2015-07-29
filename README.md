@@ -107,6 +107,11 @@ downloaded when checking out or pulling. Default is false
     $ gem build git-media.gemspec
     $ sudo gem install git-media-*.gem
 
+If you have file permissions problems running `bundle install`, you could
+try instead:
+
+    $ bundle install --path ~/.gem
+
 ## Notes for Windows
 
 It is important to switch off git smart newline character support for media files.
