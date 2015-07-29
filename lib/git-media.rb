@@ -59,6 +59,7 @@ module GitMedia
       if path === ""
         raise "git-media.scppath not set for scp transport"
       end
+      puts "Collecting information on ssh remote " + host + path
       GitMedia::Transport::Scp.new(user, host, path, port)
 
     when "local"
@@ -155,6 +156,12 @@ module GitMedia
         when "clear" # parse delete options
           require 'git-media/clear'
           GitMedia::Clear.run!
+        when "pull"
+          require 'git-media/pull'
+          GitMedia::Pull.run!
+        when "push"
+          require 'git-media/push'
+          GitMedia::Push.run!
         when "sync"
           require 'git-media/sync'
           GitMedia::Sync.run!
@@ -176,9 +183,13 @@ module GitMedia
           GitMedia::FilterBranch.run!
         else
     print <<EOF
-usage: git media sync|status|clear
+usage: git media sync|pull|push|status|clear
 
-  sync                 Sync files with remote server
+  sync                 Sync files with remote server (runs pull and push)
+
+  pull                 Download files from remote server
+
+  push                 Upload files to remote server
 
   status               Show files that are waiting to be uploaded and file size
                        --short:  Displays a shorter status message
