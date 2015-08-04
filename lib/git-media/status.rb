@@ -12,16 +12,19 @@ module GitMedia
       self.print_cache_status(r, opts[:short])
     end
 
-    # find tree entries that are likely media references
+    # Find tree entries that are likely media references
     def self.find_references
       references = {:to_expand => [], :expanded => [], :deleted => []}
       files = `git ls-tree -l -r HEAD | tr "\\000" \\\\n`.split("\n")
       files = files.map { |f| s = f.split("\t"); [s[0].split(' ').last, s[1]] }
+      # => files = [[file_size, file_name], [...], ...]
+      # Find unpulled files after looking at its size
+      # TODO: this seems a little bit risky, what if a file has mistakenly the
+      # same size
       files = files.select { |f| f[0] == '41' } # it's the right size
       files.each do |tree_size, fname|
         if File.exists?(fname)
           size = File.size(fname)
-
           # Windows newlines can offset file size by 1
           if size == tree_size.to_i or size == tree_size.to_i + 1
             # TODO: read in the data and verify that it's a sha + newline
@@ -34,7 +37,7 @@ module GitMedia
             references[:expanded] << fname
           end
         else
-          # file was deleted
+          # File was deleted
           references[:deleted] << fname
         end
       end
@@ -109,7 +112,7 @@ module GitMedia
     end
 
     def self.local_cache_status
-      # find files in media buffer and check if they are uploaded already
+      # Find files in media buffer and check if they are uploaded already
       references = {:unpushed => [], :pushed => []}
       all_cache = Dir.chdir(GitMedia.get_media_buffer) { Dir.glob('*') }
       unpushed_files = @push.get_unpushed(all_cache) || []
