@@ -38,6 +38,7 @@ module GitMedia
   end
 
   def self.get_transport
+    # Get transport settings from .git/config
     transport = `git config git-media.transport`.chomp
     case transport
     when ""
