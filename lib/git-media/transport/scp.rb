@@ -39,7 +39,6 @@ module GitMedia
         from_file = @user+"@"+@host+":"+File.join(@path, sha)
         `scp #{@scpport} "#{from_file}" "#{to_file}"`
         if $? == 0
-          puts sha+" downloaded"
           return true
         end
         puts sha+" download fail"
@@ -54,7 +53,6 @@ module GitMedia
         to_file = @user+"@"+@host+":"+File.join(@path, sha)
         `scp #{@scpport} "#{from_file}" "#{to_file}"`
         if $? == 0
-          puts sha+" uploaded"
           return true
         end
         puts sha+" upload fail"
