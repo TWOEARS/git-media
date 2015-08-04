@@ -1,4 +1,5 @@
 require 'git-media/transport'
+require 'net/sftp'
 
 # move large media to remote server via SCP
 
@@ -60,9 +61,11 @@ module GitMedia
       end
       
       def get_unpushed(files)
-        files.select do |f|
-          !self.exist?(File.join(@path, f))
-        end
+        sftp = Net::SFTP.start(@host, @user)
+        files_on_server = sftp.dir.entries(@path).map { |e| e.name }
+        # Get rid of ".." and "." entries
+        files_on_server = files_on_server.delete_if { |e| e === ".." || e === "." }
+        return files - files_on_server rescue []
       end
       
     end
