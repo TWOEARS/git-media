@@ -5,7 +5,7 @@ module GitMedia
   module Status
 
     def self.run!(opts)
-      @push = GitMedia.get_push_transport
+      @server = GitMedia.get_push_transport
       r = self.get_pull_status(opts[:dir])
       c = self.get_push_status
       self.print_pull_status(r, opts[:long], opts[:dir])
@@ -15,7 +15,7 @@ module GitMedia
     def self.get_pull_status(relative_path=false)
       # Find files that are likely media entries and check if they are
       # downloaded already
-      references = {:unpulled => [], :pulled => [], :deleted => []}
+      references = {:unpulled => [], :pulled => [], :deleted => [], :not_on_server => []}
       if relative_path
         files = `git ls-tree -l -r HEAD | tr "\\000" \\\\n`.split("\n")
         repo_path = "."
@@ -40,6 +40,7 @@ module GitMedia
             sha = File.read(fname).strip
             if sha.length == 40 && sha =~ /^[0-9a-f]+$/
               references[:unpulled] << [fname, sha]
+              references[:not_on_server] << fname if !@server.exist?(sha)
             end
           else
             references[:pulled] << fname
@@ -56,7 +57,7 @@ module GitMedia
       # Find files in media buffer and check if they are uploaded already
       references = {:unpushed => [], :pushed => []}
       all_cache = Dir.chdir(GitMedia.get_media_buffer) { Dir.glob('*') }
-      unpushed_files = @push.get_unpushed(all_cache) || []
+      unpushed_files = @server.get_unpushed(all_cache) || []
       references[:unpushed] = unpushed_files
       references[:pushed] = all_cache - unpushed_files rescue []
       references
@@ -65,10 +66,13 @@ module GitMedia
     def self.print_pull_status(refs, long=false, relative_path=false)
       if refs[:unpulled].size > 0
         hint = ", run 'git media pull"
-        relative_path ? hint << " --dir'" : hint << "'"
-        hint << " to download them"
+        hint << " --dir" if relative_path
+        hint << "' to download them"
       else
         hint = ""
+      end
+      if refs[:not_on_server].size > 0
+        hint << ". WARNING: " + refs[:not_on_server].size.to_s + " of them are not on the server!"
       end
       puts "== Unpulled Media: " + refs[:unpulled].size.to_s + " file(s)" + hint
       if long

@@ -28,7 +28,9 @@ module GitMedia
 
       def exist?(file)
         begin
-          @connection.stat!(file)
+          # TODO: check why the following prints the path two times?
+          #puts File.join(@path, file)
+          @connection.stat!(File.join(@path, file))
           return true
         rescue
           return false
@@ -45,7 +47,7 @@ module GitMedia
           @connection.download!(from_file, to_file)
           return true
         rescue
-          if !self.exist?(from_file)
+          if !self.exist?(sha)
             puts sha[0, 8] + " download failed: File not on server."
           else
             puts sha[0, 8] + " download failed."
