@@ -5,7 +5,7 @@ module GitMedia
   module Status
 
     def self.run!(opts)
-      @server = GitMedia.get_push_transport
+      @server = GitMedia.get_transport
       r = self.get_pull_status(opts[:dir])
       c = self.get_push_status
       self.print_pull_status(r, opts[:long], opts[:dir])

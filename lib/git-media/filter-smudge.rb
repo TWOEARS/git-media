@@ -27,13 +27,13 @@ module GitMedia
 
           if auto_download
 
-            pull = GitMedia.get_pull_transport
+            server = GitMedia.get_transport
 
             cache_file = GitMedia.media_path(sha)
             if !File.exist?(cache_file)
               STDERR.puts ("Downloading : " + sha[0,8])
               # Download the file from backend storage
-              pull.pull(sha)
+              server.pull(sha)
             end
 
             STDERR.puts ("Expanding : " + sha[0,8])

@@ -5,7 +5,7 @@ module GitMedia
   module Pull
 
     def self.run!(opts)
-      @pull = GitMedia.get_pull_transport
+      @server = GitMedia.get_transport
       self.pull_media(opts[:dir])
       self.update_index(opts[:dir])
     end
@@ -18,7 +18,7 @@ module GitMedia
         cache_file = GitMedia.media_path(sha)
         if !File.exist?(cache_file)
           puts "Downloading " + sha[0,8]
-          @pull.pull(sha)
+          @server.pull(sha)
         end
         if File.exist?(cache_file)
           puts "Expanding " + (index+1).to_s + " of " + status[:unpulled].length.to_s + ": " + sha[0,8] + " => " + file
