@@ -14,7 +14,8 @@ module GitMedia
       all_cache = Dir.chdir(GitMedia.get_media_buffer) { Dir.glob('*') }
       unpushed_files = @push.get_unpushed(all_cache)
       unpushed_files.each_with_index do |sha, index|
-        puts "Uploading " + sha[0, 8] + " " + (index+1).to_s + " of " + unpushed_files.length.to_s
+        cache_file = GitMedia.media_path(sha)
+        puts "Uploading " + (index+1).to_s + " of " + unpushed_files.length.to_s + ": " + cache_file + " => " + sha[0, 8]
         @push.push(sha)
       end
       # TODO: if --clean, remove them
