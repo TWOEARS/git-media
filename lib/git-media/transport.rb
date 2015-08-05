@@ -2,7 +2,7 @@ module GitMedia
   module Transport
     class Base
 
-      def pull(final_file, sha)
+      def pull(sha)
         to_file = GitMedia.media_path(sha)
         get_file(sha, to_file)
       end

@@ -33,8 +33,7 @@ module GitMedia
             if !File.exist?(cache_file)
               STDERR.puts ("Downloading : " + sha[0,8])
               # Download the file from backend storage
-              # We have no idea what the final file will be (therefore nil)
-              pull.pull(nil, sha)
+              pull.pull(sha)
             end
 
             STDERR.puts ("Expanding : " + sha[0,8])
