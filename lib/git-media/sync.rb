@@ -7,10 +7,10 @@ require 'git-media/pull'
 module GitMedia
   module Sync
 
-    def self.run!
+    def self.run!(opts)
       # TODO: the following connects two times to the server, maybe we could
       # reduce it to one time.
-      GitMedia::Pull.run!
+      GitMedia::Pull.run!(opts)
       GitMedia::Push.run!
     end
 

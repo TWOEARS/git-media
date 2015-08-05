@@ -4,14 +4,14 @@ require 'git-media/status'
 module GitMedia
   module Pull
 
-    def self.run!
+    def self.run!(opts)
       @pull = GitMedia.get_pull_transport
-      self.pull_media
-      self.update_index
+      self.pull_media(opts[:dir])
+      self.update_index(opts[:dir])
     end
 
-    def self.pull_media
-      status = GitMedia::Status.get_pull_status
+    def self.pull_media(relative_path=false)
+      status = GitMedia::Status.get_pull_status(relative_path)
       status[:unpulled].each_with_index do |tuple, index|
         file = tuple[0]
         sha = tuple[1]
@@ -31,8 +31,8 @@ module GitMedia
       end
     end
 
-    def self.update_index
-      refs = GitMedia::Status.get_pull_status
+    def self.update_index(relative_path=false)
+      refs = GitMedia::Status.get_pull_status(relative_path)
 
       # Split references up into lists of at most 500
       # because most OSs have limits on the size of the argument list

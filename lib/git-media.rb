@@ -159,16 +159,23 @@ module GitMedia
           GitMedia::Clear.run!
         when "pull"
           require 'git-media/pull'
-          GitMedia::Pull.run!
+          opts = Trollop::options do
+            opt :dir, "Pull only files for the current dir and subdirs"
+          end
+          GitMedia::Pull.run!(opts)
         when "push"
           require 'git-media/push'
           GitMedia::Push.run!
         when "sync"
           require 'git-media/sync'
-          GitMedia::Sync.run!
+          opts = Trollop::options do
+            opt :dir, "Pull only files for the current dir and subdirs"
+          end
+          GitMedia::Sync.run!(opts)
         when 'status'
           require 'git-media/status'
           opts = Trollop::options do
+            opt :dir, "Look only under the current dir for unpulled files"
             opt :long, "Long status, listing all files"
           end
           GitMedia::Status.run!(opts)

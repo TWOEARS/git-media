@@ -6,17 +6,23 @@ module GitMedia
 
     def self.run!(opts)
       @push = GitMedia.get_push_transport
-      r = self.get_pull_status
+      r = self.get_pull_status(opts[:dir])
       c = self.get_push_status
       self.print_pull_status(r, opts[:long])
       self.print_push_status(c, opts[:long])
     end
 
-    def self.get_pull_status
+    def self.get_pull_status(relative_path=false)
       # Find files that are likely media entries and check if they are
       # downloaded already
       references = {:unpulled => [], :pulled => [], :deleted => []}
-      files = `git ls-tree -l -r HEAD | tr "\\000" \\\\n`.split("\n")
+      if relative_path
+        files = `git ls-tree -l -r HEAD | tr "\\000" \\\\n`.split("\n")
+        repo_path = "."
+      else
+        files = `git ls-tree -l -r HEAD --full-tree | tr "\\000" \\\\n`.split("\n")
+        repo_path = `git rev-parse --show-toplevel`.chomp
+      end
       files = files.map { |f| s = f.split("\t"); [s[0].split(' ').last, s[1]] }
       # => files = [[file_size, file_name], [...], ...]
       # Find unpulled files after looking at its size
@@ -24,6 +30,7 @@ module GitMedia
       # same size
       files = files.select { |f| f[0] == '41' } # it's the right size
       files.each do |tree_size, fname|
+        fname = File.join(repo_path, fname)
         if File.exists?(fname)
           size = File.size(fname)
           # Windows newlines can offset file size by 1
