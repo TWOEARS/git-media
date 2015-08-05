@@ -6,12 +6,11 @@ module GitMedia
 
     def self.run!
       @push = GitMedia.get_push_transport
-
-      self.upload_local_cache
+      self.push_media
     end
 
-    def self.upload_local_cache
-      # find files in media buffer and upload them
+    def self.push_media
+      # Find files in media buffer and upload them
       all_cache = Dir.chdir(GitMedia.get_media_buffer) { Dir.glob('*') }
       unpushed_files = @push.get_unpushed(all_cache)
       unpushed_files.each_with_index do |sha, index|

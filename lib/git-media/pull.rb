@@ -6,14 +6,13 @@ module GitMedia
 
     def self.run!
       @pull = GitMedia.get_pull_transport
-
-      self.expand_references
+      self.pull_media
       self.update_index
     end
 
-    def self.expand_references
-      status = GitMedia::Status.find_references
-      status[:to_expand].each_with_index do |tuple, index|
+    def self.pull_media
+      status = GitMedia::Status.get_pull_status
+      status[:unpulled].each_with_index do |tuple, index|
         file = tuple[0]
         sha = tuple[1]
         cache_file = GitMedia.media_path(sha)
@@ -22,7 +21,7 @@ module GitMedia
           @pull.pull(file, sha)
         end
 
-        puts "Expanding " + (index+1).to_s + " of " + status[:to_expand].length.to_s + " : " + sha[0,8] + " : " + file
+        puts "Expanding " + (index+1).to_s + " of " + status[:unpulled].length.to_s + " : " + sha[0,8] + " : " + file
 
         if File.exist?(cache_file)
           FileUtils.cp(cache_file, file)
@@ -33,13 +32,13 @@ module GitMedia
     end
 
     def self.update_index
-      refs = GitMedia::Status.find_references
+      refs = GitMedia::Status.get_pull_status
 
       # Split references up into lists of at most 500
       # because most OSs have limits on the size of the argument list
       # TODO: Could probably use the --stdin flag on git update-index to be
       # able to update it in a single call
-      refLists = refs[:expanded].each_slice(500).to_a
+      refLists = refs[:pulled].each_slice(500).to_a
 
       refLists.each {
         |refList|
@@ -48,7 +47,7 @@ module GitMedia
 
         `git update-index --assume-unchanged -- #{refList.join(' ')}`
       }
-      
+
       puts "Updated git index"
     end
 
