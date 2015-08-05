@@ -193,13 +193,16 @@ module GitMedia
 usage: git media sync|pull|push|status|clear
 
   sync                 Sync files with remote server (runs pull and push)
+                       --dir:  Pull only files under current dir
 
   pull                 Download files from remote server
+                       --dir:  Pull only files under current dir
 
   push                 Upload files to remote server
 
-  status               Show files that are waiting to be uploaded and file size
-                       --short:  Displays a shorter status message
+  status               Show number of (un)pulled, (un)pushed files
+                       --dir:   Look only for pulled files under current dir
+                       --long:  List file names
 
   clear                Upload and delete the local cache of media files
 

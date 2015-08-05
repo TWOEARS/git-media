@@ -8,7 +8,7 @@ module GitMedia
       @push = GitMedia.get_push_transport
       r = self.get_pull_status(opts[:dir])
       c = self.get_push_status
-      self.print_pull_status(r, opts[:long])
+      self.print_pull_status(r, opts[:long], opts[:dir])
       self.print_push_status(c, opts[:long])
     end
 
@@ -62,8 +62,15 @@ module GitMedia
       references
     end
 
-    def self.print_pull_status(refs, long=false)
-      puts "== Unpulled Media: " + refs[:unpulled].size.to_s + " file(s)"
+    def self.print_pull_status(refs, long=false, relative_path=false)
+      if refs[:unpulled].size > 0
+        hint = ", run 'git media pull"
+        relative_path ? hint << " --dir'" : hint << "'"
+        hint << " to download them"
+      else
+        hint = ""
+      end
+      puts "== Unpulled Media: " + refs[:unpulled].size.to_s + " file(s)" + hint
       if long
         refs[:unpulled].each do |file, sha|
           # TODO: get local file name
@@ -91,7 +98,12 @@ module GitMedia
     end
 
     def self.print_push_status(refs, long=false)
-      puts "== Unpushed Media: " + refs[:unpushed].size.to_s + " file(s)"
+      if refs[:unpushed].size > 0
+        hint = ", run 'git media push' to upload them"
+      else
+        hint = ""
+      end
+      puts "== Unpushed Media: " + refs[:unpushed].size.to_s + " file(s)" + hint
       if long
         refs[:unpushed].each do |sha|
           cache_file = GitMedia.media_path(sha)
@@ -100,7 +112,12 @@ module GitMedia
         end
         puts
       end
-      puts "== Pushed Media:   " + refs[:pushed].size.to_s + " file(s)"
+      if refs[:pushed].size > 0
+        hint = ", run 'git media clear' to remove them from temp dir"
+      else
+        hint = ""
+      end
+      puts "== Pushed Media:   " + refs[:pushed].size.to_s + " file(s)" + hint
       if long
         refs[:pushed].each do |sha|
           cache_file = GitMedia.media_path(sha)
