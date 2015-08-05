@@ -19,11 +19,6 @@ module GitMedia
     File.join(buf, sha)
   end
 
-  # TODO: select the proper transports based on settings
-  def self.get_push_transport
-    self.get_transport
-  end
-
   def self.get_credentials_from_netrc(url)
     require 'uri'
     require 'netrc'
@@ -135,10 +130,6 @@ module GitMedia
     end
   end
 
-  def self.get_pull_transport
-    self.get_transport
-  end
-
   module Application
     def self.run!
 
@@ -165,7 +156,10 @@ module GitMedia
           GitMedia::Pull.run!(opts)
         when "push"
           require 'git-media/push'
-          GitMedia::Push.run!
+          opts = Trollop::options do
+            opt :clean, "Remove local cache files after uploading"
+          end
+          GitMedia::Push.run!(opts)
         when "sync"
           require 'git-media/sync'
           opts = Trollop::options do
@@ -199,6 +193,7 @@ usage: git media sync|pull|push|status|clear
                        --dir:  Pull only files under current dir
 
   push                 Upload files to remote server
+                      --clean:  Remove local cache files after uploading
 
   status               Show number of (un)pulled, (un)pushed files
                        --dir:   Look only for pulled files under current dir

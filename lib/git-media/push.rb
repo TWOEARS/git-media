@@ -4,21 +4,23 @@ require 'git-media/status'
 module GitMedia
   module Push
 
-    def self.run!
-      @push = GitMedia.get_push_transport
-      self.push_media
+    def self.run!(opts)
+      @server = GitMedia.get_transport
+      self.push_media(opts[:clean])
     end
 
-    def self.push_media
+    def self.push_media(clean=false)
       # Find files in media buffer and upload them
       all_cache = Dir.chdir(GitMedia.get_media_buffer) { Dir.glob('*') }
-      unpushed_files = @push.get_unpushed(all_cache)
+      unpushed_files = @server.get_unpushed(all_cache)
       unpushed_files.each_with_index do |sha, index|
         cache_file = GitMedia.media_path(sha)
         puts "Uploading " + (index+1).to_s + " of " + unpushed_files.length.to_s + ": " + cache_file + " => " + sha[0, 8]
-        @push.push(sha)
+        @server.push(sha)
+        if @server.exist?(sha) && clean
+          File.unlink(File.join(GitMedia.get_media_buffer, sha))
+        end
       end
-      # TODO: if --clean, remove them
     end
 
   end
