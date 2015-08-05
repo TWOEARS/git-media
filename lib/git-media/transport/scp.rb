@@ -27,7 +27,12 @@ module GitMedia
       end
 
       def exist?(file)
-        @connection.stat(file)
+        begin
+          @connection.stat!(file)
+          return true
+        rescue
+          return false
+        end
       end
 
       def read?
@@ -40,7 +45,11 @@ module GitMedia
           @connection.download!(from_file, to_file)
           return true
         rescue
-          puts sha+" download fail"
+          if !self.exist?(from_file)
+            puts sha[0, 8] + " download failed: file not on server."
+          else
+            puts sha[0, 8] + " download failed."
+          end
           return false
         end
       end
