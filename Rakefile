@@ -6,9 +6,9 @@ begin
   Jeweler::Tasks.new do |gem|
     gem.name = "git-media"
     gem.summary = %Q{git-media}
-    gem.email = "schacon@gmail.com"
-    gem.homepage = "http://github.com/schacon/git-media"
-    gem.authors = ["Scott Chacon"]
+    gem.email = "hagen.wierstorf@tu-berlin.de"
+    gem.homepage = "http://github.com/TWOEARS/git-media"
+    gem.authors = ["Hagen Wierstorf"]
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
 
