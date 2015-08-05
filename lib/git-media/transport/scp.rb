@@ -46,7 +46,7 @@ module GitMedia
           return true
         rescue
           if !self.exist?(from_file)
-            puts sha[0, 8] + " download failed: file not on server."
+            puts sha[0, 8] + " download failed: File not on server."
           else
             puts sha[0, 8] + " download failed."
           end
