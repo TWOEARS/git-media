@@ -7,14 +7,14 @@ module GitMedia
     def self.run!(opts)
       @push = GitMedia.get_push_transport
       r = self.find_references
-      self.print_references(r, opts[:short])
-      r = self.local_cache_status
-      self.print_cache_status(r, opts[:short])
+      c = self.local_cache_status
+      self.print_references(r, opts[:long])
+      self.print_cache_status(c, opts[:long])
     end
 
     # Find tree entries that are likely media references
     def self.find_references
-      references = {:to_expand => [], :expanded => [], :deleted => []}
+      references = {:unpulled => [], :pulled => [], :deleted => []}
       files = `git ls-tree -l -r HEAD | tr "\\000" \\\\n`.split("\n")
       files = files.map { |f| s = f.split("\t"); [s[0].split(' ').last, s[1]] }
       # => files = [[file_size, file_name], [...], ...]
@@ -31,10 +31,10 @@ module GitMedia
             fname = fname.tr("\\","") #remove backslash
             sha = File.read(fname).strip
             if sha.length == 40 && sha =~ /^[0-9a-f]+$/
-              references[:to_expand] << [fname, sha]
+              references[:unpulled] << [fname, sha]
             end
           else
-            references[:expanded] << fname
+            references[:pulled] << fname
           end
         else
           # File was deleted
@@ -44,36 +44,26 @@ module GitMedia
       references
     end
 
-    def self.print_references(refs, short=false)
-
-      if refs[:to_expand].size > 0
-        puts "== Unpulled Media =="
-        if short
-          puts "Count: " + refs[:to_expand].size.to_s
-        else
-          refs[:to_expand].each do |file, sha|
-            puts "   " + sha[0, 8] + " " + file
-          end
-          puts
+    def self.print_references(refs, long=false)
+      puts "== Unpulled Media: " + refs[:unpulled].size.to_s + " file(s)"
+      if long
+        refs[:unpulled].each do |file, sha|
+          # TODO: get local file name
+          puts "   " + sha[0, 8] + " " + file
         end
+        puts
       end
-      #if refs[:expanded].size > 0
-      #  puts "== Pulled Media =="
-      #  if short
-      #    puts "Count: " + refs[:expanded].size.to_s
-      #  else
-      #    refs[:expanded].each do |file|
-      #      size = File.size(file)
-      #      puts "   " + "(#{self.to_human(size)})".ljust(8) + " #{file}"
-      #    end
-      #    puts
-      #  end
-      #end
+      puts "== Pulled Media:   " + refs[:pulled].size.to_s + " file(s)"
+      if long
+        refs[:pulled].each do |file|
+          size = File.size(file)
+          puts "   " + "(#{self.to_human(size)})".ljust(8) + " #{file}"
+        end
+        puts
+      end
       if refs[:deleted].size > 0
-        puts "== Deleted Media =="
-        if short
-          puts "Count: " + refs[:deleted].size.to_s
-        else
+        puts "== Deleted Media:  " + refs[:deleted].size.to_s + " file(s)"
+        if long
           refs[:deleted].each do |file|
             puts "           " + " #{file}"
           end
@@ -82,33 +72,25 @@ module GitMedia
       end
     end
 
-    def self.print_cache_status(refs, short)
-      if refs[:unpushed].size > 0
-        puts "== Unpushed Media =="
-        if short
-          puts "Count: " + refs[:unpushed].size.to_s
-        else
-          refs[:unpushed].each do |sha|
-            cache_file = GitMedia.media_path(sha)
-            size = File.size(cache_file)
-            puts "   " + "(#{self.to_human(size)})".ljust(8) + " " + sha[0, 8] + " " + cache_file
-          end
-          puts
+    def self.print_cache_status(refs, long=false)
+      puts "== Unpushed Media: " + refs[:unpushed].size.to_s + " file(s)"
+      if long
+        refs[:unpushed].each do |sha|
+          cache_file = GitMedia.media_path(sha)
+          size = File.size(cache_file)
+          puts "   " + "(#{self.to_human(size)})".ljust(8) + " " + sha[0, 8] + " " + cache_file
         end
+        puts
       end
-      #if refs[:pushed].size > 0
-      #  puts "== Already Pushed Media =="
-      #  if short
-      #    puts "Count: " + refs[:pushed].size.to_s
-      #  else
-      #    refs[:pushed].each do |sha|
-      #      cache_file = GitMedia.media_path(sha)
-      #      size = File.size(cache_file)
-      #      puts "   " + "(#{self.to_human(size)})".ljust(8) + ' ' + sha[0, 8]
-      #    end
-      #    puts
-      #  end
-      #end
+      puts "== Pushed Media:   " + refs[:pushed].size.to_s + " file(s)"
+      if long
+        refs[:pushed].each do |sha|
+          cache_file = GitMedia.media_path(sha)
+          size = File.size(cache_file)
+          puts "   " + "(#{self.to_human(size)})".ljust(8) + ' ' + sha[0, 8]
+        end
+        puts
+      end
     end
 
     def self.local_cache_status

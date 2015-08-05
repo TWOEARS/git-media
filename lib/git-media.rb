@@ -169,8 +169,7 @@ module GitMedia
         when 'status'
           require 'git-media/status'
           opts = Trollop::options do
-            opt :force, "Force status"
-            opt :short, "Short status"
+            opt :long, "Long status, listing all files"
           end
           GitMedia::Status.run!(opts)
         when 'retroactively-apply'
