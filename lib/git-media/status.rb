@@ -6,14 +6,15 @@ module GitMedia
 
     def self.run!(opts)
       @push = GitMedia.get_push_transport
-      r = self.find_references
-      c = self.local_cache_status
-      self.print_references(r, opts[:long])
-      self.print_cache_status(c, opts[:long])
+      r = self.get_pull_status
+      c = self.get_push_status
+      self.print_pull_status(r, opts[:long])
+      self.print_push_status(c, opts[:long])
     end
 
-    # Find tree entries that are likely media references
-    def self.find_references
+    def self.get_pull_status
+      # Find files that are likely media entries and check if they are
+      # downloaded already
       references = {:unpulled => [], :pulled => [], :deleted => []}
       files = `git ls-tree -l -r HEAD | tr "\\000" \\\\n`.split("\n")
       files = files.map { |f| s = f.split("\t"); [s[0].split(' ').last, s[1]] }
@@ -44,7 +45,17 @@ module GitMedia
       references
     end
 
-    def self.print_references(refs, long=false)
+    def self.get_push_status
+      # Find files in media buffer and check if they are uploaded already
+      references = {:unpushed => [], :pushed => []}
+      all_cache = Dir.chdir(GitMedia.get_media_buffer) { Dir.glob('*') }
+      unpushed_files = @push.get_unpushed(all_cache) || []
+      references[:unpushed] = unpushed_files
+      references[:pushed] = all_cache - unpushed_files rescue []
+      references
+    end
+
+    def self.print_pull_status(refs, long=false)
       puts "== Unpulled Media: " + refs[:unpulled].size.to_s + " file(s)"
       if long
         refs[:unpulled].each do |file, sha|
@@ -72,7 +83,7 @@ module GitMedia
       end
     end
 
-    def self.print_cache_status(refs, long=false)
+    def self.print_push_status(refs, long=false)
       puts "== Unpushed Media: " + refs[:unpushed].size.to_s + " file(s)"
       if long
         refs[:unpushed].each do |sha|
@@ -92,17 +103,6 @@ module GitMedia
         puts
       end
     end
-
-    def self.local_cache_status
-      # Find files in media buffer and check if they are uploaded already
-      references = {:unpushed => [], :pushed => []}
-      all_cache = Dir.chdir(GitMedia.get_media_buffer) { Dir.glob('*') }
-      unpushed_files = @push.get_unpushed(all_cache) || []
-      references[:unpushed] = unpushed_files
-      references[:pushed] = all_cache - unpushed_files rescue []
-      references
-    end
-
 
     def self.to_human(size)
       if size < 1024
