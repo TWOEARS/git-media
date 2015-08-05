@@ -1,7 +1,7 @@
 require 'git-media/transport'
 require 'net/sftp'
 
-# move large media to remote server via SCP
+# move large media to remote server via SFTP
 
 # git-media.transport scp
 # git-media.scpuser someuser
@@ -16,20 +16,18 @@ module GitMedia
         @user = user
         @host = host
         @path = path
+        # TODO: port is no longer used, is this a problem?
         unless port === ""
           @sshport = "-p#{port}"
         end
         unless port === ""
           @scpport = "-P#{port}"
         end
+        @connection = Net::SFTP.start(@host, @user)
       end
 
       def exist?(file)
-        if `ssh #{@user}@#{@host} #{@sshport} [ -f "#{file}" ] && echo 1 || echo 0`.chomp == "1"
-          return true
-        else
-          return false
-        end
+        @connection.stat(file)
       end
 
       def read?
@@ -37,13 +35,14 @@ module GitMedia
       end
 
       def get_file(sha, to_file)
-        from_file = @user+"@"+@host+":"+File.join(@path, sha)
-        `scp #{@scpport} "#{from_file}" "#{to_file}"`
-        if $? == 0
+        from_file = File.join(@path, sha)
+        begin
+          @connection.download!(from_file, to_file)
           return true
+        rescue
+          puts sha+" download fail"
+          return false
         end
-        puts sha+" download fail"
-        return false
       end
 
       def write?
@@ -51,24 +50,23 @@ module GitMedia
       end
 
       def put_file(sha, from_file)
-        to_file = @user+"@"+@host+":"+File.join(@path, sha)
-        `scp #{@scpport} "#{from_file}" "#{to_file}"`
-        if $? == 0
+        to_file = File.join(@path, sha)
+        begin
+          @connection.upload!(from_file, to_file)
           return true
+        rescue
+          puts sha+" upload fail"
+          return false
         end
-        puts sha+" upload fail"
-        return false
       end
-      
+
       def get_unpushed(files)
-        Net::SFTP.start(@host, @user) do |sftp|
-          files_on_server = sftp.dir.entries(@path).map { |e| e.name }
-          # Get rid of ".." and "." entries
-          files_on_server = files_on_server.delete_if { |e| e === ".." || e === "." }
-          return files - files_on_server rescue []
-        end
+        files_on_server = @connection.dir.entries(@path).map { |e| e.name }
+        # Get rid of ".." and "." entries
+        files_on_server = files_on_server.delete_if { |e| e === ".." || e === "." }
+        return files - files_on_server rescue []
       end
-      
+
     end
   end
 end
