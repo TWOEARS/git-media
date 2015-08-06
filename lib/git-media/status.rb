@@ -64,6 +64,8 @@ module GitMedia
     end
 
     def self.print_pull_status(refs, long=false, relative_path=false)
+
+      # Unpulled media
       if refs[:unpulled].size > 0
         hint = ", run 'git media pull"
         hint << " --dir" if relative_path
@@ -82,6 +84,8 @@ module GitMedia
         end
         puts
       end
+
+      # Pulled media
       puts "== Pulled Media:   " + refs[:pulled].size.to_s + " file(s)"
       if long
         refs[:pulled].each do |file|
@@ -90,6 +94,8 @@ module GitMedia
         end
         puts
       end
+
+      # Deleted media
       if refs[:deleted].size > 0
         puts "== Deleted Media:  " + refs[:deleted].size.to_s + " file(s)"
         if long
@@ -99,9 +105,12 @@ module GitMedia
           puts
         end
       end
+
     end
 
     def self.print_push_status(refs, long=false)
+
+      # Unpushed media
       if refs[:unpushed].size > 0
         hint = ", run 'git media push' to upload them"
       else
@@ -116,20 +125,21 @@ module GitMedia
         end
         puts
       end
+
+      # Cached media (under .git/media/objects)
       if refs[:pushed].size > 0
         hint = ", run 'git media clear' to remove them from temp dir"
-      else
-        hint = ""
-      end
-      puts "== Pushed Media:   " + refs[:pushed].size.to_s + " file(s)" + hint
-      if long
-        refs[:pushed].each do |sha|
-          cache_file = GitMedia.media_path(sha)
-          size = File.size(cache_file)
-          puts "   " + "(#{self.to_human(size)})".ljust(8) + ' ' + sha[0, 8]
+        puts "== Cached Media:   " + refs[:pushed].size.to_s + " file(s)" + hint
+        if long
+          refs[:pushed].each do |sha|
+            cache_file = GitMedia.media_path(sha)
+            size = File.size(cache_file)
+            puts "   " + "(#{self.to_human(size)})".ljust(8) + ' ' + sha[0, 8]
+          end
+          puts
         end
-        puts
       end
+
     end
 
     def self.to_human(size)
