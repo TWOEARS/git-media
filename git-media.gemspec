@@ -49,7 +49,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/TWOEARS/git-media"
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.28"
-  s.summary = "git-media"
+  s.summary = %q{"Adds large files support to git using clean/smudge filters"}
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
