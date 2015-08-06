@@ -56,7 +56,7 @@ module GitMedia
     def self.get_push_status(server=@server)
       # Find files in media buffer and check if they are uploaded already
       references = {:unpushed => [], :pushed => []}
-      all_cache = Dir.chdir(GitMedia.get_media_buffer) { Dir.glob('*') }
+      all_cache = GitMedia.get_cache_files
       unpushed_files = server.get_unpushed(all_cache) || []
       references[:unpushed] = unpushed_files
       references[:pushed] = all_cache - unpushed_files rescue []

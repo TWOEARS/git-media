@@ -19,6 +19,10 @@ module GitMedia
     File.join(buf, sha)
   end
 
+  def self.get_cache_files
+    Dir.chdir(self.get_media_buffer) { Dir.glob('*') }
+  end
+
   def self.get_credentials_from_netrc(url)
     require 'uri'
     require 'netrc'

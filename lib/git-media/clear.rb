@@ -10,7 +10,7 @@ module GitMedia
 
     def self.clear_local_cache
       # find files in media buffer and delete all pushed files
-      all_cache = Dir.chdir(GitMedia.get_media_buffer) { Dir.glob('*') }
+      all_cache = GitMedia.get_cache_files
       unpushed_files = @server.get_unpushed(all_cache)
       pushed_files = all_cache - unpushed_files
       pushed_files.each do |sha|

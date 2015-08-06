@@ -11,7 +11,7 @@ module GitMedia
 
     def self.push_media(clean=false, server=@server)
       # Find files in media buffer and upload them
-      all_cache = Dir.chdir(GitMedia.get_media_buffer) { Dir.glob('*') }
+      all_cache = GitMedia.get_cache_files
       unpushed_files = server.get_unpushed(all_cache)
       unpushed_files.each_with_index do |sha, index|
         cache_file = GitMedia.media_path(sha)
