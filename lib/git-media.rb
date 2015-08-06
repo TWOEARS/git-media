@@ -23,6 +23,56 @@ module GitMedia
     Dir.chdir(self.get_media_buffer) { Dir.glob('*') }
   end
 
+  def self.get_files_with_size_and_sha(relative_path=false)
+    require 'digest/sha1'
+    # Find files that are likely media entries and check if they are
+    # downloaded already
+    if relative_path
+      files = `git ls-tree -l -r HEAD | tr "\\000" \\\\n`.split("\n")
+      repo_path = "."
+    else
+      files = `git ls-tree -l -r HEAD --full-tree | tr "\\000" \\\\n`.split("\n")
+      repo_path = `git rev-parse --show-toplevel`.chomp
+    end
+    files = files.map do |file|
+      s = file.split("\t")
+      { size: s[0].split(' ').last, path: repo_path, name: s[1] }
+    end
+    # Find unpulled files after looking at its size
+    # TODO: this seems a little bit risky, what if a file has mistakenly the
+    # same size
+    files = files.select { |f| f[:size] == '41' } # it's the right size
+    files.each do |entry|
+      sha = self.get_sha_from_file(entry)
+      entry.store("sha", sha)
+    end
+    files
+  end
+
+  def self.get_sha_from_file(file_list_entry)
+    file = File.join(file_list_entry[:path], file_list_entry[:name])
+    if File.exists?(file)
+      size = File.size(file)
+      # Read sha from file
+      # Windows newlines can offset file size by 1
+      if size == file_list_entry[:size].to_i or size == file_list_entry[:size].to_i + 1
+        # TODO: read in the data and verify that it's a sha + newline
+        file = file.tr("\\","") #remove backslash
+        sha = File.read(file).strip
+        if sha.length == 40 && sha =~ /^[0-9a-f]+$/
+          return sha
+        else
+          return nil
+        end
+      else
+        # Calculate sha from file
+        sha = Digest::SHA1.file(file)
+        sha.hexdigest
+      end
+    end
+  end
+
+
   def self.get_credentials_from_netrc(url)
     require 'uri'
     require 'netrc'
@@ -191,6 +241,8 @@ module GitMedia
       when 'index-filter'
         require 'git-media/filter-branch'
         GitMedia::FilterBranch.run!
+      when 'test'
+        GitMedia.get_files_with_size_and_sha(true)
       else
     print <<EOF
 usage: git media sync|pull|push|status|clear
