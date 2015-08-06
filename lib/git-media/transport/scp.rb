@@ -16,14 +16,12 @@ module GitMedia
         @user = user
         @host = host
         @path = path
-        # TODO: port is no longer used, is this a problem?
-        unless port === ""
-          @sshport = "-p#{port}"
+        @port = port
+        if port.empty?
+          @connection = Net::SFTP.start(@host, @user)
+        else
+          @connection = Net::SFTP.start(@host, @user, :port=>@port)
         end
-        unless port === ""
-          @scpport = "-P#{port}"
-        end
-        @connection = Net::SFTP.start(@host, @user)
       end
 
       def exist?(file)
