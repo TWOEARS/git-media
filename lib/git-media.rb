@@ -164,6 +164,7 @@ module GitMedia
           require 'git-media/sync'
           opts = Trollop::options do
             opt :dir, "Pull only files for the current dir and subdirs"
+            opt :clean, "Remove local cache files after uploading"
           end
           GitMedia::Sync.run!(opts)
         when 'status'

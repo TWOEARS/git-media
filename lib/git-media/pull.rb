@@ -10,15 +10,15 @@ module GitMedia
       self.update_index(opts[:dir])
     end
 
-    def self.pull_media(relative_path=false)
-      status = GitMedia::Status.get_pull_status(relative_path)
+    def self.pull_media(relative_path=false, server=@server)
+      status = GitMedia::Status.get_pull_status(relative_path, server)
       status[:unpulled].each_with_index do |tuple, index|
         file = tuple[0]
         sha = tuple[1]
         cache_file = GitMedia.media_path(sha)
         if !File.exist?(cache_file)
           puts "Downloading " + sha[0,8]
-          @server.pull(sha)
+          server.pull(sha)
         end
         if File.exist?(cache_file)
           puts "Expanding " + (index+1).to_s + " of " + status[:unpulled].length.to_s + ": " + sha[0,8] + " => " + file
@@ -29,8 +29,8 @@ module GitMedia
       end
     end
 
-    def self.update_index(relative_path=false)
-      refs = GitMedia::Status.get_pull_status(relative_path)
+    def self.update_index(relative_path=false, server=@server)
+      refs = GitMedia::Status.get_pull_status(relative_path, server)
 
       begin
         # Split references up into lists of at most 500

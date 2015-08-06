@@ -12,7 +12,7 @@ module GitMedia
       self.print_push_status(c, opts[:long])
     end
 
-    def self.get_pull_status(relative_path=false)
+    def self.get_pull_status(relative_path=false, server=@server)
       # Find files that are likely media entries and check if they are
       # downloaded already
       references = {:unpulled => [], :pulled => [], :deleted => [], :not_on_server => []}
@@ -40,7 +40,7 @@ module GitMedia
             sha = File.read(fname).strip
             if sha.length == 40 && sha =~ /^[0-9a-f]+$/
               references[:unpulled] << [fname, sha]
-              references[:not_on_server] << fname if !@server.exist?(sha)
+              references[:not_on_server] << fname if !server.exist?(sha)
             end
           else
             references[:pulled] << fname
@@ -53,11 +53,11 @@ module GitMedia
       references
     end
 
-    def self.get_push_status
+    def self.get_push_status(server=@server)
       # Find files in media buffer and check if they are uploaded already
       references = {:unpushed => [], :pushed => []}
       all_cache = Dir.chdir(GitMedia.get_media_buffer) { Dir.glob('*') }
-      unpushed_files = @server.get_unpushed(all_cache) || []
+      unpushed_files = server.get_unpushed(all_cache) || []
       references[:unpushed] = unpushed_files
       references[:pushed] = all_cache - unpushed_files rescue []
       references
