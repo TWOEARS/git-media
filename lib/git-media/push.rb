@@ -18,7 +18,7 @@ module GitMedia
         puts "Uploading " + (index+1).to_s + " of " + unpushed_files.length.to_s + ": " + cache_file + " => " + sha[0, 8]
         server.push(sha)
         if server.exist?(sha) && clean
-          File.unlink(File.join(GitMedia.get_media_buffer, sha))
+          File.unlink(cache_file)
         end
       end
     end
