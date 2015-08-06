@@ -9,14 +9,12 @@ module GitMedia
 
     def self.run!(input=STDIN, output=STDERR, info_output=false)
 
-      media_buffer = GitMedia.get_media_buffer
-
       # read checksum size
       orig = input.readline(64)
       sha = orig.strip # read no more than 64 bytes
       if input.eof? && sha.length == 40 && sha.match(/^[0-9a-fA-F]+$/) != nil
         # this is a media file
-        media_file = File.join(media_buffer, sha.chomp)
+        media_file = GitMedia.media_path(sha.chomp)
         if File.exists?(media_file)
           if info_output
             output.puts('Recovering media : ' + sha)

@@ -29,9 +29,6 @@ module GitMedia
 
       else
 
-        # determine and initialize our media buffer directory
-        media_buffer = GitMedia.get_media_buffer
-
         hashfunc = Digest::SHA1.new
         start = Time.now
 
@@ -56,7 +53,7 @@ module GitMedia
         output.write("\n")
 
         # move the tempfile to our media buffer area
-        media_file = File.join(media_buffer, hx)
+        media_file = GitMedia.media_path(hx)
         FileUtils.mv(tempfile.path, media_file)
         File.chmod(0640, media_file)
 
