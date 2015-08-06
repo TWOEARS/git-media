@@ -29,6 +29,7 @@ Gem::Specification.new do |s|
     "bin/git-media",
     "git-media.gemspec",
     "lib/git-media.rb",
+    "lib/git-media/check.rb",
     "lib/git-media/clear.rb",
     "lib/git-media/filter-clean.rb",
     "lib/git-media/filter-smudge.rb",

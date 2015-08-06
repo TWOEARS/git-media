@@ -179,6 +179,9 @@ module GitMedia
           opt :long, "Long status, listing all files"
         end
         GitMedia::Status.run!(opts)
+      when 'check'
+        require 'git-media/check'
+        GitMedia::Check.run!
       when 'retroactively-apply'
         require 'git-media/filter-branch'
         GitMedia::FilterBranch.clean!
@@ -208,6 +211,8 @@ usage: git media sync|pull|push|status|clear
                        --long:  List file names
 
   clear                Upload and delete the local cache of media files
+
+  check                Check local media cache and download any corrupt files
 
   retroactively-apply  [Experimental] Rewrite history to add files from previous commits to git-media
                        Takes a single argument which is an absolute path to a file which should contain all file paths to rewrite
