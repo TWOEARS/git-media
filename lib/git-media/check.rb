@@ -21,7 +21,7 @@ module GitMedia
         end
         infile.close()
         sha = file[3..-1]
-        if sha != hashfunc.hexdigest then
+        if sha != hashfunc.hexdigest
           print "Pulling corrupt file "+sha+" ..."
           server.pull(sha)
           print " Done\n"
