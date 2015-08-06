@@ -7,17 +7,20 @@ module GitMedia
       end
     end
 
-    def self.run!
+    def self.run!(input=STDIN, output=STDERR, info_output=false)
+
       media_buffer = GitMedia.get_media_buffer
-      
+
       # read checksum size
-      orig = STDIN.readline(64)
+      orig = input.readline(64)
       sha = orig.strip # read no more than 64 bytes
-      if STDIN.eof? && sha.length == 40 && sha.match(/^[0-9a-fA-F]+$/) != nil
+      if input.eof? && sha.length == 40 && sha.match(/^[0-9a-fA-F]+$/) != nil
         # this is a media file
         media_file = File.join(media_buffer, sha.chomp)
         if File.exists?(media_file)
-          STDERR.puts('Recovering media : ' + sha)
+          if info_output
+            output.puts('Recovering media : ' + sha)
+          end
           File.open(media_file, 'rb') do |f|
             print_stream(f)
           end
@@ -31,24 +34,32 @@ module GitMedia
 
             cache_file = GitMedia.media_path(sha)
             if !File.exist?(cache_file)
-              STDERR.puts ("Downloading : " + sha[0,8])
+              if info_output
+                output.puts ("Downloading : " + sha[0,8])
+              end
               # Download the file from backend storage
               server.pull(sha)
             end
 
-            STDERR.puts ("Expanding : " + sha[0,8])
+            if info.output
+              output.puts ("Expanding : " + sha[0,8])
+            end
 
             if File.exist?(cache_file)
               File.open(media_file, 'rb') do |f|
                 print_stream(f)
               end
             else
-              STDERR.puts ("Could not get media, saving placeholder : " + sha)
+              if info_output
+                output.puts ("Could not get media, saving placeholder : " + sha)
+              end
               puts orig
             end
 
           else
-            STDERR.puts('Media missing, saving placeholder : ' + sha)
+            if info_output
+              output.puts('Media missing, saving placeholder : ' + sha)
+            end
             # Print orig and not sha to preserve eventual newlines at end of file
             # To avoid git thinking the file has changed
             puts orig
@@ -56,9 +67,11 @@ module GitMedia
         end
       else
         # if it is not a 40 character long hash, just output
-        STDERR.puts('Unknown git-media file format')
+        if info_output
+          output.puts('Unknown git-media file format')
+        end
         print orig
-        print_stream(STDIN)
+        print_stream(input)
       end
     end
 

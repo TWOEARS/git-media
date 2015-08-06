@@ -5,7 +5,7 @@ require 'tempfile'
 module GitMedia
   module FilterClean
 
-    def self.run!(input=STDIN, output=STDOUT, info_output=true)
+    def self.run!(input=STDIN, output=STDOUT, info_output=false)
       
       # Read first 42 bytes
       # If the file is only 41 bytes long (as in the case of a stub)
