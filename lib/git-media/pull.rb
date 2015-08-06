@@ -6,11 +6,11 @@ module GitMedia
 
     def self.run!(opts)
       @server = GitMedia.get_transport
-      self.pull_media(opts[:dir])
+      self.pull_media(opts[:dir], opts[:clean])
       self.update_index(opts[:dir])
     end
 
-    def self.pull_media(relative_path=false, server=@server)
+    def self.pull_media(relative_path=false, clean=false, server=@server)
       status = GitMedia::Status.get_pull_status(relative_path, server)
       status[:unpulled].each_with_index do |tuple, index|
         file = tuple[0]
@@ -23,6 +23,7 @@ module GitMedia
         if File.exist?(cache_file)
           puts "Expanding " + (index+1).to_s + " of " + status[:unpulled].length.to_s + ": " + sha[0,8] + " => " + file
           FileUtils.cp(cache_file, file)
+          File.unlink(cache_file) if clean
         else
           puts "Expanding " + (index+1).to_s + " of " + status[:unpulled].length.to_s + ": Could not get media from storage"
         end
