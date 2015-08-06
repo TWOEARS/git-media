@@ -97,7 +97,8 @@ module GitMedia
 
       # Deleted media
       if refs[:deleted].size > 0
-        puts "== Deleted Media:  " + refs[:deleted].size.to_s + " file(s)"
+        hint = ", run 'git rm <file(s)> && git commit' to remove completely"
+        puts "== Deleted Media:  " + refs[:deleted].size.to_s + " file(s)" + hint
         if long
           refs[:deleted].each do |file|
             puts "           " + " #{file}"
