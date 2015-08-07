@@ -29,6 +29,7 @@ Gem::Specification.new do |s|
     "lib/git-media/filter-clean.rb",
     "lib/git-media/filter-smudge.rb",
     "lib/git-media/filter-branch.rb",
+    "lib/git-media/list.rb",
     "lib/git-media/pull.rb",
     "lib/git-media/push.rb",
     "lib/git-media/status.rb",
