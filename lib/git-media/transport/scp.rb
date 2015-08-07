@@ -70,10 +70,10 @@ module GitMedia
       end
 
       def get_unpushed(files)
-        files_on_server = @connection.dir.entries(@path).map { |e| e.name }
+        sha_on_server = @connection.dir.entries(@path).map { |e| e.name }
         # Get rid of ".." and "." entries
-        files_on_server = files_on_server.delete_if { |e| e === ".." || e === "." }
-        return files - files_on_server rescue []
+        sha_on_server = files_on_server.delete_if { |e| e === ".." || e === "." }
+        return files.select { |f| sha_on_server.include?(f[:sha]) }
       end
 
     end

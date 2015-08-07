@@ -20,7 +20,20 @@ module GitMedia
   end
 
   def self.get_cache_files
-    Dir.chdir(self.get_media_buffer) { Dir.glob('*') }
+    # List files stored in media cache as { :size, :path, :name, :sha }
+    media_files = self.get_media_files
+    cache_sha = Dir.chdir(self.get_media_buffer) { Dir.glob('*') }
+    cache_files = media_files.select { |f| cache_sha.include?(f[:sha]) }
+  end
+
+  def self.get_media_files(relative_path=false)
+    # List git-media handled files as { :size, :path, :name, :sha }
+    files = self.get_files_with_size_path_name(relative_path)
+    files.each do |entry|
+      sha = self.get_sha_from_file(entry)
+      entry.store(:sha, sha)
+    end
+    files
   end
 
   def self.get_files_with_size_path_name(relative_path=false)
@@ -45,16 +58,6 @@ module GitMedia
       fname = File.join(file[:path], file[:name])
       file[:size] = File.exists?(fname) ? File.size(fname).to_s : nil
     end
-  end
-
-  def self.get_files_with_size_path_name_sha(relative_path=false)
-    # List git-media handled files as { :size, :path, :name, :sha }
-    files = self.get_files_with_size_path_name(relative_path)
-    files.each do |entry|
-      sha = self.get_sha_from_file(entry)
-      entry.store("sha", sha)
-    end
-    files
   end
 
   def self.get_sha_from_file(file_list_entry)
@@ -236,9 +239,14 @@ module GitMedia
         require 'git-media/status'
         opts = Trollop::options do
           opt :dir, "Look only under the current dir for unpulled files"
-          opt :long, "Long status, listing all files"
         end
         GitMedia::Status.run!(opts)
+      when 'list'
+        require 'git-media/list'
+        opts = Trollop::options do
+          opt :dir, "Look only under the current dir for unpulled files"
+        end
+        GitMedia::List.run!(opts)
       when 'check'
         require 'git-media/check'
         GitMedia::Check.run!
@@ -270,7 +278,9 @@ usage: git media sync|pull|push|status|clear
 
   status               Show number of (un)pulled, (un)pushed files
                        --dir:   Look only for pulled files under current dir
-                       --long:  List file names
+
+  list                 List (un)pulled, (un)pushed files
+                       --dir:   Look only for pulled files under current dir
 
   clear                Upload and delete the local cache of media files
 
