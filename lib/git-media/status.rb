@@ -16,38 +16,20 @@ module GitMedia
       # Find files that are likely media entries and check if they are
       # downloaded already
       references = {:unpulled => [], :pulled => [], :deleted => [], :not_on_server => []}
-      if relative_path
-        files = `git ls-tree -l -r HEAD | tr "\\000" \\\\n`.split("\n")
-        repo_path = "."
-      else
-        files = `git ls-tree -l -r HEAD --full-tree | tr "\\000" \\\\n`.split("\n")
-        repo_path = `git rev-parse --show-toplevel`.chomp
-      end
-      files = files.map { |f| s = f.split("\t"); [s[0].split(' ').last, s[1]] }
-      # => files = [[file_size, file_name], [...], ...]
-      # Find unpulled files after looking at its size
-      # TODO: this seems a little bit risky, what if a file has mistakenly the
-      # same size
-      files = files.select { |f| f[0] == '41' } # it's the right size
-      files.each do |tree_size, fname|
-        fname = File.join(repo_path, fname)
+      files = GitMedia.get_files_with_size_path_name_sha(relative_path)
+      files.each do |file|
+        fname = File.join(file[:path], file[:name])
         if File.exists?(fname)
-          size = File.size(fname)
           # Windows newlines can offset file size by 1
-          if size == tree_size.to_i or size == tree_size.to_i + 1
-            # TODO: read in the data and verify that it's a sha + newline
-            fname = fname.tr("\\","") #remove backslash
-            sha = File.read(fname).strip
-            if sha.length == 40 && sha =~ /^[0-9a-f]+$/
-              references[:unpulled] << [fname, sha]
-              references[:not_on_server] << fname if !server.exist?(sha)
-            end
+          if file[:size].to_i == 41 or file[:size].to_i == 42
+            references[:unpulled] << [file[:name], file[:sha]]
+            references[:not_on_server] << [file[:name]] if !server.exist?(file[:sha])
           else
-            references[:pulled] << fname
+            references[:pulled] << [file[:name]]
           end
         else
           # File was deleted
-          references[:deleted] << fname
+          references[:deleted] << [file[:name]]
         end
       end
       references

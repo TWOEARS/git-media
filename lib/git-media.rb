@@ -23,10 +23,8 @@ module GitMedia
     Dir.chdir(self.get_media_buffer) { Dir.glob('*') }
   end
 
-  def self.get_files_with_size_and_sha(relative_path=false)
-    require 'digest/sha1'
-    # Find files that are likely media entries and check if they are
-    # downloaded already
+  def self.get_files_with_size_path_name(relative_path=false)
+    # List git-media handled files as { :size, :path, :name }
     if relative_path
       files = `git ls-tree -l -r HEAD | tr "\\000" \\\\n`.split("\n")
       repo_path = "."
@@ -38,10 +36,20 @@ module GitMedia
       s = file.split("\t")
       { size: s[0].split(' ').last, path: repo_path, name: s[1] }
     end
-    # Find unpulled files after looking at its size
+    # Find git-media handled files by its size
     # TODO: this seems a little bit risky, what if a file has mistakenly the
     # same size
-    files = files.select { |f| f[:size] == '41' } # it's the right size
+    files = files.select { |f| f[:size] == '41' }
+    # Update size by actual file size
+    files = files.each do |file|
+      fname = File.join(file[:path], file[:name])
+      file[:size] = File.exists?(fname) ? File.size(fname).to_s : nil
+    end
+  end
+
+  def self.get_files_with_size_path_name_sha(relative_path=false)
+    # List git-media handled files as { :size, :path, :name, :sha }
+    files = self.get_files_with_size_path_name(relative_path)
     files.each do |entry|
       sha = self.get_sha_from_file(entry)
       entry.store("sha", sha)
@@ -50,12 +58,12 @@ module GitMedia
   end
 
   def self.get_sha_from_file(file_list_entry)
+    require 'digest/sha1'
     file = File.join(file_list_entry[:path], file_list_entry[:name])
-    if File.exists?(file)
-      size = File.size(file)
+    begin
       # Read sha from file
       # Windows newlines can offset file size by 1
-      if size == file_list_entry[:size].to_i or size == file_list_entry[:size].to_i + 1
+      if file_list_entry[:size].to_i == 41 or file_list_entry[:size].to_i == 42
         # TODO: read in the data and verify that it's a sha + newline
         file = file.tr("\\","") #remove backslash
         sha = File.read(file).strip
@@ -69,6 +77,8 @@ module GitMedia
         sha = Digest::SHA1.file(file)
         sha.hexdigest
       end
+    rescue
+      nil
     end
   end
 
@@ -242,7 +252,7 @@ module GitMedia
         require 'git-media/filter-branch'
         GitMedia::FilterBranch.run!
       when 'test'
-        GitMedia.get_files_with_size_and_sha(true)
+        puts GitMedia.get_files_with_size_path_name_sha(true)
       else
     print <<EOF
 usage: git media sync|pull|push|status|clear
