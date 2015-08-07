@@ -11,21 +11,18 @@ module GitMedia
     end
 
     def self.pull_media(relative_path=false, clean=false, server=@server)
-      status = GitMedia::Status.get_pull_status(relative_path, server)
-      status[:unpulled].each_with_index do |tuple, index|
-        file = tuple[0]
-        sha = tuple[1]
-        cache_file = GitMedia.media_path(sha)
+      refs = GitMedia::Status.get_pull_status(relative_path, server)
+      refs[:unpulled].each_with_index do |file, index|
+        cache_file = GitMedia.media_path(file[:sha])
         if !File.exist?(cache_file)
-          puts "Downloading " + sha[0,8]
-          server.pull(sha)
+          puts "Downloading " + (index+1).to_s + " of " + refs[:unpulled].length.to_s + ": " + file[:sha][0,8] + " => " + file[:name]
+          server.pull(file[:sha])
         end
         if File.exist?(cache_file)
-          puts "Expanding " + (index+1).to_s + " of " + status[:unpulled].length.to_s + ": " + sha[0,8] + " => " + file
-          FileUtils.cp(cache_file, file)
+          FileUtils.cp(cache_file, File.join(file[:path], file[:name]))
           File.unlink(cache_file) if clean
         else
-          puts "Expanding " + (index+1).to_s + " of " + status[:unpulled].length.to_s + ": Could not get media from storage"
+          puts "Downloading " + (index+1).to_s + " of " + refs[:unpulled].length.to_s + ": Could not get media from storage"
         end
       end
     end
@@ -38,6 +35,7 @@ module GitMedia
         # because most OSs have limits on the size of the argument list
         # TODO: Could probably use the --stdin flag on git update-index to be
         # able to update it in a single call
+        refs[:pulled] = refs[:pulled].map { |r| File.join(r[:path], r[:name]) }
         refLists = refs[:pulled].each_slice(500).to_a
         refLists.each do |refList|
           refList = refList.map { |v| "\"" + v + "\"" }
