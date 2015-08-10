@@ -69,6 +69,16 @@ module GitMedia
         end
       end
 
+      def get_media_files
+        begin
+          @connection.dir.glob(@path, '*').map do |file|
+            { size: file.attributes.size.to_i, path: @path, name: file.name, sha: file.name }
+          end
+        rescue
+          []
+        end
+      end
+
       def get_unpushed(files)
         files_on_server = @connection.dir.entries(@path).map { |e| e.name }
         # Get rid of ".." and "." entries
