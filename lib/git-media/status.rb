@@ -1,16 +1,11 @@
-require 'pp'
-require 'git-media/list'
-Encoding.default_external = Encoding::UTF_8
-
+# Get status and information on (un)pulled + (un)pushed files
 module GitMedia
   module Status
 
     def self.run!(opts)
       @server = GitMedia.get_transport
       refs = self.get_status(opts[:dir])
-      #c = self.get_push_status
-      self.print_pull_status(refs, opts[:dir])
-      self.print_push_status(refs)
+      self.print_status(refs, opts[:dir])
     end
 
     def self.get_pull_status(relative_path=false, server=@server)
@@ -64,48 +59,41 @@ module GitMedia
       refs
     end
 
-    def self.print_pull_status(refs, relative_path=false)
+    def self.print_status(refs, relative_path=false)
+      puts
 
       # Unpulled media
-      if refs[:unpulled].size > 0
-        hint = ", run 'git media pull"
-        hint << " --dir" if relative_path
-        hint << "' to download them"
-      else
-        hint = ""
-      end
+      hint = ", run 'git media pull"
+      hint << " --dir" if relative_path
+      hint << "' to download them"
       if refs[:not_on_server].size > 0
         hint << ". WARNING: " + refs[:not_on_server].size.to_s + " of them are not on the server!"
       end
-      puts "== Unpulled Media: " + refs[:unpulled].size.to_s + " file(s), (#{self.media_size(refs[:unpulled])})" + hint
+      self.display(refs[:unpulled], "Unpulled Media", hint)
 
       # Pulled media
-      puts "== Pulled Media:   " + refs[:pulled].size.to_s + " file(s), (#{self.media_size(refs[:pulled])})"
+      self.display(refs[:pulled], "Pulled Media")
 
       # Deleted media
       if refs[:deleted].size > 0
         hint = ", run 'git rm <file(s)> && git commit' to remove completely"
-        puts "== Deleted Media:  " + refs[:deleted].size.to_s + " file(s)" + hint
+        self.display(refs[:deleted], "Deleted Media", hint)
       end
-
-    end
-
-    def self.print_push_status(refs)
 
       # Unpushed media
-      if refs[:unpushed].size > 0
-        hint = ", run 'git media push' to upload them"
-      else
-        hint = ""
-      end
-      puts "== Unpushed Media: " + refs[:unpushed].size.to_s + " file(s), (#{self.media_size(refs[:unpushed])})" + hint
+      hint = ", run 'git media push' to upload them"
+      self.display(refs[:unpushed], "Unpushed Media", hint)
 
       # Cached media (under .git/media/objects)
       if refs[:cached].size > 0
         hint = ", run 'git media clear' to remove them from temp dir"
-        puts "== Cached Media:   " + refs[:cached].size.to_s + " file(s), (#{self.media_size(refs[:cached])})" + hint
+        self.display(refs[:cached], "Cached Media", hint)
       end
+    end
 
+    def self.display(refs, message, hint="")
+      hint = "" if refs.size == 0
+      puts "== #{message.ljust(15)}: #{refs.size.to_s.rjust(6)} file(s), (#{self.media_size(refs).rjust(4)})" + hint 
     end
 
     def self.media_size(files)

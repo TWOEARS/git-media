@@ -11,28 +11,29 @@ module GitMedia
 
     def self.list_files(relative_path=false, server=@server)
       refs = GitMedia::Status.get_status(relative_path, server)
+      puts
       if refs[:unpulled].size > 0
-        puts "== Unpulled files: "
+        GitMedia::Status.display(refs[:unpulled], "Unpulled Media")
         self.display_files(refs[:unpulled])
       end
       if refs[:not_on_server].size > 0
-        puts "== Files missing on server: "
+        GitMedia::Status.display(refs[:not_on_server], "Media missing on server")
         self.display_files(refs[:not_on_server])
       end
       if refs[:pulled].size > 0
-        puts "== Pulled files: "
+        GitMedia::Status.display(refs[:pulled], "Pulled Media")
         self.display_files(refs[:pulled])
       end
       if refs[:deleted].size > 0
-        puts "== Deleted files: "
+        GitMedia::Status.display(refs[:deleted], "Deleted Media")
         self.display_files(refs[:deleted], true)
       end
       if refs[:unpushed].size > 0
-        puts "== Unpushed files: "
+        GitMedia::Status.display(refs[:unpushed], "Unpulled Media")
         self.display_files(refs[:unpushed])
       end
       if refs[:cached].size > 0
-        puts "== Cached files: "
+        GitMedia::Status.display(refs[:cached], "Cached Media")
         self.display_files(refs[:cached])
       end
     end
@@ -42,7 +43,7 @@ module GitMedia
         if show_only_name
           puts "   " + "()".ljust(8) + " " + " "*8 + "   " + file[:name]
         else
-          puts "   " + "(#{GitMedia::Status.to_human(file[:size])})".ljust(8) + " " + file[:sha][0, 8] + "   " + file[:name]
+          puts "   " + "(#{GitMedia::Status.to_human(file[:size]).rjust(4)})   " + file[:sha][0, 8] + "   " + file[:name]
         end
       end
       puts
