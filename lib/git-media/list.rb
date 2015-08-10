@@ -10,7 +10,7 @@ module GitMedia
     end
 
     def self.list_files(relative_path=false, server=@server)
-      refs = GitMedia::Status.get_pull_status(relative_path, server)
+      refs = GitMedia::Status.get_status(relative_path, server)
       if refs[:unpulled].size > 0
         puts "== Unpulled files: "
         self.display_files(refs[:unpulled])
@@ -27,7 +27,6 @@ module GitMedia
         puts "== Deleted files: "
         self.display_files(refs[:deleted], true)
       end
-      refs = GitMedia::Status.get_push_status(server)
       if refs[:unpushed].size > 0
         puts "== Unpushed files: "
         self.display_files(refs[:unpushed])
@@ -43,21 +42,10 @@ module GitMedia
         if show_only_name
           puts "   " + "()".ljust(8) + " " + " "*8 + "   " + file[:name]
         else
-          puts "   " + "(#{self.to_human(file[:size])})".ljust(8) + " " + file[:sha][0, 8] + "   " + file[:name]
+          puts "   " + "(#{GitMedia::Status.to_human(file[:size])})".ljust(8) + " " + file[:sha][0, 8] + "   " + file[:name]
         end
       end
       puts
-    end
-
-    def self.to_human(size)
-      size = size.to_i
-      if size < 1024
-        return size.to_s + 'b'
-      elsif size < 1048576
-        return (size / 1024).to_s + 'k'
-      else
-        return (size / 1048576).to_s + 'm'
-      end
     end
 
   end

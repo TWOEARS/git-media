@@ -1,4 +1,5 @@
 require 'pp'
+require 'git-media/list'
 Encoding.default_external = Encoding::UTF_8
 
 module GitMedia
@@ -6,42 +7,52 @@ module GitMedia
 
     def self.run!(opts)
       @server = GitMedia.get_transport
-      r = self.get_pull_status(opts[:dir])
-      c = self.get_push_status
-      self.print_pull_status(r, opts[:dir])
-      self.print_push_status(c)
+      refs = self.get_status(opts[:dir])
+      #c = self.get_push_status
+      self.print_pull_status(refs, opts[:dir])
+      self.print_push_status(refs)
     end
 
     def self.get_pull_status(relative_path=false, server=@server)
-      # Find files that are likely media entries and check if they are
-      # downloaded already
-      references = {:unpulled => [], :pulled => [], :deleted => [], :not_on_server => []}
-      files = GitMedia.get_media_files(relative_path)
-      files.each do |file|
-        fname = File.join(file[:path], file[:name])
-        if File.exists?(fname)
-          # Windows newlines can offset file size by 1
-          if file[:size].to_i == 41 or file[:size].to_i == 42
-            references[:unpulled] << file
-            references[:not_on_server] << file if !server.exist?(file[:sha])
-          else
-            references[:pulled] << file
-          end
-        else
-          # File was deleted
-          references[:deleted] << file
-        end
-      end
-      references
+      self.get_status(relative_path, server)
     end
 
     def self.get_push_status(server=@server)
-      # Find files in media buffer and check if they are uploaded already
-      refs = {:unpushed => [], :cached => []}
+      self.get_status(false, server)
+    end
+
+    def self.get_status(relative_path=false, server=@server)
+      # Find files that are likely media entries and check if they are
+      # downloaded already
+      refs = {:unpulled => [], :pulled => [], :deleted => [], :not_on_server => [], :unpushed => [], :cached => []}
+      files = GitMedia.get_media_files(relative_path)
+      files_on_server = server.get_media_files
       cache_files = GitMedia.get_cache_files
-      unpushed_files = server.get_unpushed(cache_files) rescue []
-      refs[:unpushed] = unpushed_files
-      refs[:cached] = cache_files - unpushed_files rescue []
+      # Create lookup table for file size from server
+      size_by_sha = Hash[files_on_server.map { |f| f.values_at(:name, :size) }]
+      files.each do |file|
+        local_size = file[:size]
+        if size_by_sha[file[:sha]]
+          file[:size] = size_by_sha[file[:sha]]
+        else
+          file[:size] = 0
+          refs[:not_on_server] << file
+        end
+        fname = File.join(file[:path], file[:name])
+        if File.exists?(fname)
+          # Windows newlines can offset file size by 1
+          if local_size.to_i == 41 or local_size.to_i == 42
+            refs[:unpulled] << file
+          else
+            refs[:pulled] << file
+          end
+        else
+          # File was deleted
+          refs[:deleted] << file
+        end
+      end
+      refs[:unpushed] = cache_files.select { |f| files_on_server.include?(f[:sha]) }
+      refs[:cached] = cache_files - refs[:unpushed] rescue []
       refs
     end
 
@@ -58,10 +69,10 @@ module GitMedia
       if refs[:not_on_server].size > 0
         hint << ". WARNING: " + refs[:not_on_server].size.to_s + " of them are not on the server!"
       end
-      puts "== Unpulled Media: " + refs[:unpulled].size.to_s + " file(s)" + hint
+      puts "== Unpulled Media: " + refs[:unpulled].size.to_s + " file(s), (#{self.media_size(refs[:unpulled])})" + hint
 
       # Pulled media
-      puts "== Pulled Media:   " + refs[:pulled].size.to_s + " file(s)"
+      puts "== Pulled Media:   " + refs[:pulled].size.to_s + " file(s), (#{self.media_size(refs[:pulled])})"
 
       # Deleted media
       if refs[:deleted].size > 0
@@ -79,14 +90,29 @@ module GitMedia
       else
         hint = ""
       end
-      puts "== Unpushed Media: " + refs[:unpushed].size.to_s + " file(s)" + hint
+      puts "== Unpushed Media: " + refs[:unpushed].size.to_s + " file(s), (#{self.media_size(refs[:unpushed])})" + hint
 
       # Cached media (under .git/media/objects)
       if refs[:cached].size > 0
         hint = ", run 'git media clear' to remove them from temp dir"
-        puts "== Cached Media:   " + refs[:cached].size.to_s + " file(s)" + hint
+        puts "== Cached Media:   " + refs[:cached].size.to_s + " file(s), (#{self.media_size(refs[:cached])})" + hint
       end
 
+    end
+
+    def self.media_size(files)
+      # Sum up the size of all given files
+      self.to_human(files.inject(0) { |sum, file| sum + file[:size] })
+    end
+
+    def self.to_human(size)
+      if size < 1024
+        return size.to_s + 'b'
+      elsif size < 1048576
+        return (size / 1024).to_s + 'k'
+      else
+        return (size / 1048576).to_s + 'm'
+      end
     end
 
   end
