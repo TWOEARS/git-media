@@ -11,14 +11,12 @@ module GitMedia
 
     def self.push_media(clean=false, server=@server)
       # Find files in media buffer and upload them
-      all_cache = GitMedia.get_cache_files
-      unpushed_files = server.get_unpushed(all_cache)
-      unpushed_files.each_with_index do |sha, index|
-        cache_file = GitMedia.media_path(sha)
-        puts "Uploading " + (index+1).to_s + " of " + unpushed_files.length.to_s + ": " + cache_file + " => " + sha[0, 8]
-        server.push(sha)
-        if server.exist?(sha) && clean
-          File.unlink(cache_file)
+      refs = GitMedia::Status.get_push_status(server)
+      refs[:unpushed].each_with_index do |file, index|
+        puts "Uploading " + (index+1).to_s + " of " + refs[:unpushed].length.to_s + ": " + file[:name] + " => " + file[:sha][0, 8]
+        server.push(file[:sha])
+        if server.exist?(file[:sha]) && clean
+          File.unlink(File.join(file[:path], file[:sha]))
         end
       end
     end
