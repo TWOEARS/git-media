@@ -58,7 +58,7 @@ module GitMedia
     # Update size by actual file size
     files = files.each do |file|
       fname = File.join(file[:path], file[:name])
-      file[:size] = File.exists?(fname) ? File.size(fname).to_s : nil
+      file[:size] = File.exists?(fname) ? File.size(fname).to_i : nil
     end
   end
 
@@ -68,7 +68,7 @@ module GitMedia
     begin
       # Read sha from file
       # Windows newlines can offset file size by 1
-      if file_list_entry[:size].to_i == 41 or file_list_entry[:size].to_i == 42
+      if file_list_entry[:size] == 41 or file_list_entry[:size] == 42
         # TODO: read in the data and verify that it's a sha + newline
         file = file.tr("\\","") #remove backslash
         sha = File.read(file).strip
