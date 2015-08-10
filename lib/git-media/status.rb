@@ -27,21 +27,25 @@ module GitMedia
       refs = {:unpulled => [], :pulled => [], :deleted => [], :not_on_server => [], :unpushed => [], :cached => []}
       files = GitMedia.get_media_files(relative_path)
       files_on_server = server.get_media_files
-      cache_files = GitMedia.get_cache_files
+      files_in_cache = GitMedia.get_cache_files
       # Create lookup table for file size from server
-      size_by_sha = Hash[files_on_server.map { |f| f.values_at(:name, :size) }]
+      size_on_server = Hash[files_on_server.map { |f| f.values_at(:name, :size) }]
       files.each do |file|
-        local_size = file[:size]
-        if size_by_sha[file[:sha]]
-          file[:size] = size_by_sha[file[:sha]]
+
+        # Update media size by values from server
+        local_size = file[:size] # store local size
+        if size_on_server[file[:sha]]
+          file[:size] = size_on_server[file[:sha]]
         else
           file[:size] = 0
           refs[:not_on_server] << file
         end
+
+        # Check if media file has been pulled by checking its local size
         fname = File.join(file[:path], file[:name])
         if File.exists?(fname)
           # Windows newlines can offset file size by 1
-          if local_size.to_i == 41 or local_size.to_i == 42
+          if local_size == 41 or local_size == 42
             refs[:unpulled] << file
           else
             refs[:pulled] << file
@@ -50,9 +54,13 @@ module GitMedia
           # File was deleted
           refs[:deleted] << file
         end
+
       end
-      refs[:unpushed] = cache_files.select { |f| files_on_server.include?(f[:sha]) }
-      refs[:cached] = cache_files - refs[:unpushed] rescue []
+
+      # Check if media files from cache have been pushed
+      refs[:unpushed] = files_in_cache.select { |f| files_on_server.include?(f[:sha]) }
+      refs[:cached] = files_in_cache - refs[:unpushed] rescue []
+
       refs
     end
 
