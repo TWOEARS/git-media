@@ -22,8 +22,10 @@ module GitMedia
   def self.get_cache_files
     # List files stored in media cache as { :size, :path, :name, :sha }
     media_files = self.get_media_files
-    cache_sha = Dir.chdir(self.get_media_buffer) { Dir.glob('*') }
+    cache_path = self.get_media_buffer
+    cache_sha = Dir.chdir(cache_path) { Dir.glob('*') }
     cache_files = media_files.select { |f| cache_sha.include?(f[:sha]) }
+    cache_files.each { |f| f[:path] = cache_path }
   end
 
   def self.get_media_files(relative_path=false)
