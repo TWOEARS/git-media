@@ -11,9 +11,9 @@ module GitMedia
     def self.check_local_cache(server=@server)
 
       puts "Checking local media cache.."
-      all_cache = GitMedia.get_cache_files
-      all_cache.each do |file|
-        media_file = GitMedia.media_path(file)
+      cache_files = GitMedia.get_cache_files
+      cache_files.each do |file|
+        media_file = File.join(file[:path], file[:name])
         infile = File.open(media_file, 'rb')
         hashfunc = Digest::SHA1.new
         while data = infile.read(4096)
