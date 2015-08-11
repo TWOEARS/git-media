@@ -77,7 +77,8 @@ module GitMedia
 
       # Deleted media
       if refs[:deleted].size > 0
-        hint = ", run 'git rm <file(s)> && git commit' to remove completely"
+        hint = ", run 'git rm <file> && git commit' to remove completely\n" +
+               " "*44 + "run 'git checkout -- <file>' to restore"
         self.display(refs[:deleted], "Deleted Media", hint)
       end
 
