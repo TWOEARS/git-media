@@ -17,7 +17,12 @@ module GitMedia
       end
       puts
       if opts[:unpulled] and refs[:unpulled].size > 0
-        GitMedia::Status.display(refs[:unpulled], "Unpulled Media")
+        if refs[:not_on_server].size > 0
+          hint = ". WARNING: " + refs[:not_on_server].size.to_s + " of them are not on the server!"
+        else
+          hint = ""
+        end
+        GitMedia::Status.display(refs[:unpulled], "Unpulled Media", hint)
         self.display_files(refs[:unpulled])
       end
       if opts[:not_on_server] and refs[:not_on_server].size > 0
