@@ -27,17 +27,18 @@ module GitMedia
       size_on_server = Hash[files_on_server.map { |f| f.values_at(:name, :size) }]
       files.each do |file|
 
+        fname = File.join(file[:path], file[:name])
+
         # Update media size by values from server
         local_size = file[:size] # store local size
         if size_on_server[file[:sha]]
           file[:size] = size_on_server[file[:sha]]
         else
           file[:size] = 0
-          refs[:not_on_server] << file
+          refs[:not_on_server] << file if File.exists?(fname)
         end
 
         # Check if media file has been pulled by checking its local size
-        fname = File.join(file[:path], file[:name])
         if File.exists?(fname)
           # Windows newlines can offset file size by 1
           if local_size == 41 or local_size == 42
