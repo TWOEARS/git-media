@@ -1,9 +1,7 @@
 require 'rubygems'
 require 'bundler/setup'
-
 require 'trollop'
 require 'fileutils'
-#
 
 module GitMedia
 
@@ -258,15 +256,15 @@ module GitMedia
       when 'check'
         require 'git-media/check'
         GitMedia::Check.run!
-      when 'retroactively-apply'
-        require 'git-media/filter-branch'
-        GitMedia::FilterBranch.clean!
-        arg2 = "--index-filter 'git media index-filter #{ARGV.shift}'"
-        system("git filter-branch #{arg2} --tag-name-filter cat -- --all")
-        GitMedia::FilterBranch.clean!
-      when 'index-filter'
-        require 'git-media/filter-branch'
-        GitMedia::FilterBranch.run!
+      #when 'retroactively-apply'
+      #  require 'git-media/filter-branch'
+      #  GitMedia::FilterBranch.clean!
+      #  arg2 = "--index-filter 'git media index-filter #{ARGV.shift}'"
+      #  system("git filter-branch #{arg2} --tag-name-filter cat -- --all")
+      #  GitMedia::FilterBranch.clean!
+      #when 'index-filter'
+      #  require 'git-media/filter-branch'
+      #  GitMedia::FilterBranch.run!
       when 'test'
         puts GitMedia.get_files_with_size_path_name_sha(true)
       else
@@ -299,11 +297,6 @@ usage: git media sync|pull|push|status|list|clear
   clear                Upload and delete the local cache of media files
 
   check                Check local media cache and re-download any corrupt files
-
-  retroactively-apply  [Experimental] Rewrite history to add files from previous commits to git-media
-                       Takes a single argument which is an absolute path to a file which should contain all file paths to rewrite
-                       This file could for example be generated using
-                       'git log --pretty=format: --name-only --diff-filter=A | sort -u | egrep ".*\.(jpg|png)" > to_rewrite'
 
 EOF
       end
