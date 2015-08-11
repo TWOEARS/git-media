@@ -246,7 +246,13 @@ module GitMedia
       when 'list'
         require 'git-media/list'
         opts = Trollop::options do
-          opt :dir, "Look only under the current dir for unpulled files"
+          opt :dir,           "Look only under the current dir for unpulled files"
+          opt :pulled,        "List only pulled files"
+          opt :unpulled,      "List only unpulled files"
+          opt :cached,        "List only cached files"
+          opt :unpushed,      "List only unpushed files"
+          opt :deleted,       "List only deleted files"
+          opt :not_on_server, "List files missing on server"
         end
         GitMedia::List.run!(opts)
       when 'check'
@@ -265,7 +271,7 @@ module GitMedia
         puts GitMedia.get_files_with_size_path_name_sha(true)
       else
     print <<EOF
-usage: git media sync|pull|push|status|clear
+usage: git media sync|pull|push|status|list|clear
 
   sync                 Sync files with remote server (runs pull and push)
                        --dir:  Pull only files under current dir
@@ -281,12 +287,18 @@ usage: git media sync|pull|push|status|clear
   status               Show number of (un)pulled, (un)pushed files
                        --dir:   Look only for pulled files under current dir
 
-  list                 List (un)pulled, (un)pushed files
-                       --dir:   Look only for pulled files under current dir
+  list                 List media files
+                       --dir:            Look only for pulled files under current dir
+                       --pulled:         List only pulled files
+                       --unpulled:       List only unpulled files
+                       --cached:         List only cached files
+                       --unpushed:       List only unpushed files
+                       --deleted:        List only deleted files
+                       --not_on_server:  List files missing on server
 
   clear                Upload and delete the local cache of media files
 
-  check                Check local media cache and download any corrupt files
+  check                Check local media cache and re-download any corrupt files
 
   retroactively-apply  [Experimental] Rewrite history to add files from previous commits to git-media
                        Takes a single argument which is an absolute path to a file which should contain all file paths to rewrite
