@@ -38,13 +38,23 @@ module GitMedia
         end
         return false
       end
-      
-      def get_unpushed(files)
-        files.select do |f|
-          !File.exist?(File.join(@path, f))
+
+      def get_media_files
+        begin
+          Dir.glob(File.join(@path, '*')).map do |f|
+            { size: File.size(f), path: @path, name: File.basename(f), sha: File.basename(f) }
+          end
+        rescue
+          []
         end
       end
-      
+
+      #def get_unpushed(files)
+      #  files.select do |f|
+      #    !File.exist?(File.join(@path, f))
+      #  end
+      #end
+
     end
   end
 end

@@ -45,17 +45,29 @@ module GitMedia
         @atmos_client.create(obj_conf)
       end
 
-      def get_unpushed(files)
-        unpushed = []
-        files.each do |file|
-          begin
-            @atmos_client.get(:namespace => file)
-          rescue Atmos::Exceptions::AtmosException
-            unpushed << file
+      def get_media_files
+        # code untested!
+        begin
+          obj = @atmos_client.each_object_with_listable_tag(@tag)
+          obj.map do |entry|
+            { size: entry[:length], path: @tag, name: entry[:namespace], sha: entry[:namespace] }
           end
+        rescue
+          []
         end
-        unpushed
       end
+
+      #def get_unpushed(files)
+      #  unpushed = []
+      #  files.each do |file|
+      #    begin
+      #      @atmos_client.get(:namespace => file)
+      #    rescue Atmos::Exceptions::AtmosException
+      #      unpushed << file
+      #    end
+      #  end
+      #  unpushed
+      #end
 
       private
       # dummy function to test connectivity to atmos

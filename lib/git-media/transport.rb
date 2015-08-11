@@ -13,7 +13,7 @@ module GitMedia
       end
 
       ## OVERWRITE ##
-      
+
       def read?
         false
       end
@@ -29,11 +29,15 @@ module GitMedia
       def put_file(sha, to_file)
         false
       end
-      
-      def get_unpushed(files)
-        files
+
+      def get_media_files
+        []
       end
-      
+
+      #def get_unpushed(files)
+      #  files
+      #end
+
     end
   end
 end
