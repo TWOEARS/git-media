@@ -56,7 +56,7 @@ module GitMedia
     # Update size by actual file size
     files = files.each do |file|
       fname = File.join(file[:path], file[:name])
-      file[:size] = File.exists?(fname) ? File.size(fname).to_i : nil
+      file[:size] = File.exists?(fname) ? File.size(fname).to_i : 0
     end
   end
 
@@ -73,7 +73,7 @@ module GitMedia
         if sha.length == 40 && sha =~ /^[0-9a-f]+$/
           return sha
         else
-          return nil
+          return ""
         end
       else
         # Calculate sha from file
@@ -81,7 +81,7 @@ module GitMedia
         sha.hexdigest
       end
     rescue
-      nil
+      ""
     end
   end
 
