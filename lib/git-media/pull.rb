@@ -29,17 +29,16 @@ module GitMedia
 
     def self.update_index(relative_path=false, server=@server)
       refs = GitMedia::Status.get_pull_status(relative_path, server)
-
       begin
         # Split references up into lists of at most 500
         # because most OSs have limits on the size of the argument list
         # TODO: Could probably use the --stdin flag on git update-index to be
         # able to update it in a single call
-        refs[:pulled] = refs[:pulled].map { |r| File.join(r[:path], r[:name]) }
-        refLists = refs[:pulled].each_slice(500).to_a
-        refLists.each do |refList|
-          refList = refList.map { |v| "\"" + v + "\"" }
-          `git update-index --assume-unchanged -- #{refList.join(' ')}`
+        pulled_files = refs[:pulled].map { |f| File.join(f[:path], f[:name]) }
+        pulled_files = pulled_files.each_slice(500).to_a
+        pulled_files.each do |file|
+          file = file.map { |f| "\"" + f + "\"" }
+          `git update-index --assume-unchanged -- #{file.join(' ')}`
         end
       rescue
         puts "Failed to update your git index, your repo is in a non-working state!"
