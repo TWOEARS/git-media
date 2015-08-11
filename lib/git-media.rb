@@ -265,8 +265,6 @@ module GitMedia
       #when 'index-filter'
       #  require 'git-media/filter-branch'
       #  GitMedia::FilterBranch.run!
-      when 'test'
-        puts GitMedia.get_files_with_size_path_name_sha(true)
       else
     print <<EOF
 usage: git media sync|pull|push|status|list|clear
