@@ -22,7 +22,7 @@ module GitMedia
       end
       if opts[:not_on_server] and refs[:not_on_server].size > 0
         GitMedia::Status.display(refs[:not_on_server], "Media missing on server")
-        self.display_files(refs[:not_on_server])
+        self.display_files(refs[:not_on_server], true)
       end
       if opts[:pulled] and refs[:pulled].size > 0
         GitMedia::Status.display(refs[:pulled], "Pulled Media")
