@@ -23,45 +23,12 @@ module GitMedia
             print_stream(f)
           end
         else
-          # Read key from config
-          auto_download = `git config git-media.autodownload`.chomp.downcase == "true"
-
-          if auto_download
-
-            server = GitMedia.get_transport
-
-            cache_file = GitMedia.media_path(sha)
-            if !File.exist?(cache_file)
-              if info_output
-                output.puts ("Downloading : " + sha[0,8])
-              end
-              # Download the file from backend storage
-              server.pull(sha)
-            end
-
-            if info.output
-              output.puts ("Expanding : " + sha[0,8])
-            end
-
-            if File.exist?(cache_file)
-              File.open(media_file, 'rb') do |f|
-                print_stream(f)
-              end
-            else
-              if info_output
-                output.puts ("Could not get media, saving placeholder : " + sha)
-              end
-              puts orig
-            end
-
-          else
-            if info_output
-              output.puts('Media missing, saving placeholder : ' + sha)
-            end
-            # Print orig and not sha to preserve eventual newlines at end of file
-            # To avoid git thinking the file has changed
-            puts orig
+          if info_output
+            output.puts('Media missing, saving placeholder : ' + sha)
           end
+          # Print orig and not sha to preserve eventual newlines at end of file
+          # To avoid git thinking the file has changed
+          puts orig
         end
       else
         # if it is not a 40 character long hash, just output
