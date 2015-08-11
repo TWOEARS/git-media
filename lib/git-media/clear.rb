@@ -12,8 +12,11 @@ module GitMedia
       # Remove no longer needed files from cache
       refs = GitMedia::Status.get_status(false, @server)
       refs[:cached].each do |file|
-        puts "Removing " + file[:sha][0, 8]
-        File.unlink(File.join(file[:path], file[:sha]))
+        cache_file = File.join(file[:path], file[:sha])
+        if File.exists?(cache_file)
+          puts "Removing " + cache_file
+          File.unlink(File.join(cache_file))
+        end
       end
     end
 
