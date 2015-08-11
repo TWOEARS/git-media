@@ -17,12 +17,14 @@ module GitMedia
         if !File.exist?(cache_file)
           puts "Downloading " + (index+1).to_s + " of " + refs[:unpulled].length.to_s + ": " + file[:sha][0,8] + " => " + file[:name]
           server.pull(file[:sha])
+          not_downloaded = false
         end
         if File.exist?(cache_file)
+          puts "Reusing     " + (index+1).to_s + " of " + refs[:unpulled].length.to_s + ": " + file[:sha][0,8] + " => " + file[:name] if not_downloaded
           FileUtils.cp(cache_file, File.join(file[:path], file[:name]))
           File.unlink(cache_file) if clean
         else
-          puts "Downloading " + (index+1).to_s + " of " + refs[:unpulled].length.to_s + ": Could not get media from storage"
+          puts "Problem at  " + (index+1).to_s + " of " + refs[:unpulled].length.to_s + ": Could not get media from storage"
         end
       end
     end
