@@ -18,9 +18,9 @@ module GitMedia
     File.join(buf, sha)
   end
 
-  def self.get_cache_files
+  def self.get_cache_files(media_files=nil)
     # List files stored in media cache as { :size, :path, :name, :sha }
-    media_files = self.get_media_files
+    media_files = self.get_media_files if media_files.nil?
     cache_path = self.get_media_buffer
     cache_sha = Dir.chdir(cache_path) { Dir.glob('*') }
     cache_files = media_files.select { |f| cache_sha.include?(f[:sha]) }

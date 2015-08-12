@@ -22,7 +22,7 @@ module GitMedia
       refs = {:unpulled => [], :pulled => [], :deleted => [], :not_on_server => [], :unpushed => [], :cached => []}
       files = GitMedia.get_media_files(relative_path)
       files_on_server = server.get_media_files
-      files_in_cache = GitMedia.get_cache_files
+      files_in_cache = GitMedia.get_cache_files(files)
       # Create lookup table for file size from server
       size_on_server = Hash[files_on_server.map { |f| f.values_at(:name, :size) }]
       files.each do |file|
