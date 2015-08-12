@@ -54,7 +54,8 @@ module GitMedia
       end
 
       # Check if media files from cache have been pushed
-      refs[:unpushed] = files_in_cache.select { |f| files_on_server.include?(f[:sha]) }
+      intersection = files_in_cache.map { |f| f[:sha] } & files_on_server.map { |f| f[:sha] }
+      refs[:unpushed] = files_in_cache.select { |f| !intersection.include?(f[:sha]) }
       refs[:cached] = files_in_cache - refs[:unpushed] rescue []
 
       refs

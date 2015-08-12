@@ -2,6 +2,7 @@ require 'rubygems'
 require 'bundler/setup'
 require 'trollop'
 require 'fileutils'
+require 'ruby-prof'
 
 module GitMedia
 
@@ -200,6 +201,8 @@ module GitMedia
   module Application
     def self.run!
 
+      RubyProf.start
+
       if !system('git rev-parse')
         return
       end
@@ -298,6 +301,9 @@ usage: git media sync|pull|push|status|list|clear
 
 EOF
       end
+      result = RubyProf.stop
+      printer = RubyProf::FlatPrinter.new(result)
+      printer.print(STDOUT)
     end
   end
 end
