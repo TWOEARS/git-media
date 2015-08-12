@@ -109,8 +109,10 @@ module GitMedia
         return size.to_s + 'b'
       elsif size < 1048576
         return (size / 1024).to_s + 'k'
-      else
+      elsif size < 1073741824
         return (size / 1048576).to_s + 'm'
+      else
+        return (size / 1073741824).to_s + 'g'
       end
     end
 
