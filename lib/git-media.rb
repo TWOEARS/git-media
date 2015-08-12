@@ -20,10 +20,14 @@ module GitMedia
 
   def self.get_cache_files(media_files=nil)
     # List files stored in media cache as { :size, :path, :name, :sha }
-    media_files = self.get_media_files if media_files.nil?
+    if media_files.nil?
+      cache_files = self.get_media_files
+    else
+      cache_files = Marshal.load(Marshal.dump(media_files)) # clone nested Hash
+    end
     cache_path = self.get_media_buffer
     cache_sha = Dir.chdir(cache_path) { Dir.glob('*') }
-    cache_files = media_files.select { |f| cache_sha.include?(f[:sha]) }
+    cache_files = cache_files.select { |f| cache_sha.include?(f[:sha]) }
     cache_files.each { |f| f[:path] = cache_path }
   end
 
@@ -201,7 +205,7 @@ module GitMedia
   module Application
     def self.run!
 
-      RubyProf.start
+      #RubyProf.start
 
       if !system('git rev-parse')
         return
@@ -301,9 +305,9 @@ usage: git media sync|pull|push|status|list|clear
 
 EOF
       end
-      result = RubyProf.stop
-      printer = RubyProf::FlatPrinter.new(result)
-      printer.print(STDOUT)
+      #result = RubyProf.stop
+      #printer = RubyProf::FlatPrinter.new(result)
+      #printer.print(STDOUT)
     end
   end
 end
