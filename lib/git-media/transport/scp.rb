@@ -65,6 +65,10 @@ module GitMedia
           return true
         rescue
           puts sha+" upload fail"
+          begin
+            @connection.remove!(to_file)
+          rescue
+          end
           return false
         end
       end
