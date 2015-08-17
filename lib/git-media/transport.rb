@@ -4,12 +4,19 @@ module GitMedia
 
       def pull(sha)
         to_file = GitMedia.media_path(sha)
-        get_file(sha, to_file)
+        from_file = GitMedia.sha_to_path(sha)
+        get_file(from_file, to_file)
       end
 
       def push(sha)
         from_file = GitMedia.media_path(sha)
-        put_file(sha, from_file)
+        to_file = GitMedia.sha_to_path(sha)
+        put_file(to_file, from_file)
+      end
+
+      def exist?(sha)
+        file = GitMedia.sha_to_path(sha)
+        has_file?(file)
       end
 
       ## OVERWRITE ##
@@ -19,6 +26,10 @@ module GitMedia
       end
 
       def write?
+        false
+      end
+
+      def has_file?(file)
         false
       end
 

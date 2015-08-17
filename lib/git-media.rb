@@ -15,7 +15,16 @@ module GitMedia
 
   def self.media_path(sha)
     buf = self.get_media_buffer
+    sha = self.sha_to_path(sha)
     File.join(buf, sha)
+  end
+
+  def self.sha_to_path(sha)
+    sha[0,2] + '/' + sha[2,38]
+  end
+
+  def self.path_to_sha(path)
+    path.delete('/')
   end
 
   def self.get_cache_files(media_files=nil)
@@ -26,7 +35,8 @@ module GitMedia
       cache_files = Marshal.load(Marshal.dump(media_files)) # clone nested Hash
     end
     cache_path = self.get_media_buffer
-    cache_sha = Dir.chdir(cache_path) { Dir.glob('*') }
+    cache_sha = Dir.chdir(cache_path) { Dir.glob('*/*') }
+    cache_sha.map! { |f| self.path_to_sha(f) }
     cache_files = cache_files.select { |f| cache_sha.include?(f[:sha]) }
     cache_files.each { |f| f[:path] = cache_path }
   end

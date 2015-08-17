@@ -24,7 +24,7 @@ module GitMedia
       files_on_server = server.get_media_files
       files_in_cache = GitMedia.get_cache_files(files)
       # Create lookup table for file size from server
-      size_on_server = Hash[files_on_server.map { |f| f.values_at(:name, :size) }]
+      size_on_server = Hash[files_on_server.map { |f| f.values_at(:sha, :size) }]
       files.each do |file|
 
         fname = File.join(file[:path], file[:name])
@@ -43,7 +43,7 @@ module GitMedia
           # Windows newlines can offset file size by 1
           if local_size == 41 or local_size == 42
             refs[:unpulled] << file
-          else
+          elsif size_on_server[file[:sha]] # show only files as pulled that exist on server
             refs[:pulled] << file
           end
         else

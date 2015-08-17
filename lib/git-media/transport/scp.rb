@@ -24,10 +24,8 @@ module GitMedia
         end
       end
 
-      def exist?(file)
+      def has_file?(file)
         begin
-          # TODO: check why the following prints the path two times?
-          #puts File.join(@path, file)
           @connection.stat!(File.join(@path, file))
           return true
         rescue
@@ -42,13 +40,14 @@ module GitMedia
       def get_file(sha, to_file)
         from_file = File.join(@path, sha)
         begin
+          FileUtils.mkdir_p(File.dirname(to_file))
           @connection.download!(from_file, to_file)
           return true
         rescue
           if !self.exist?(sha)
-            puts sha[0, 8] + " download failed: File not on server."
+            puts "... download failed: File not on server."
           else
-            puts sha[0, 8] + " download failed."
+            puts "... download failed."
           end
           return false
         end
@@ -60,11 +59,12 @@ module GitMedia
 
       def put_file(sha, from_file)
         to_file = File.join(@path, sha)
+        self.create_dir(File.dirname(to_file))
         begin
           @connection.upload!(from_file, to_file)
           return true
         rescue
-          puts sha+" upload fail"
+          puts "... upload failed"
           begin
             @connection.remove!(to_file)
           rescue
@@ -75,11 +75,20 @@ module GitMedia
 
       def get_media_files
         begin
-          @connection.dir.glob(@path, '*').map do |file|
-            { size: file.attributes.size.to_i, path: @path, name: file.name, sha: file.name }
+          @connection.dir.glob(@path, '*/*').map do |file|
+            { size: file.attributes.size.to_i, path: @path, name: file.name, sha: GitMedia.path_to_sha(file.name) }
           end
         rescue
           []
+        end
+      end
+
+      def create_dir(path)
+        begin
+          @connection.mkdir!(path)
+        rescue Net::SFTP::StatusException => e
+          # Creation of directory fails if it already exist. This rescue
+          # with doing nothing circumvances an error.
         end
       end
 
