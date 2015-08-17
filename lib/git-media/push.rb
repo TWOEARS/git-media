@@ -7,16 +7,16 @@ module GitMedia
 
     def self.run!(opts)
       @server = GitMedia.get_transport
-      self.push_media(opts[:clean])
+      self.push_media(opts[:clear])
     end
 
-    def self.push_media(clean=false, server=@server)
+    def self.push_media(clear=false, server=@server)
       # Find files in media buffer and upload them
       refs = GitMedia::Status.get_push_status(server)
       refs[:unpushed].each_with_index do |file, index|
         puts "Uploading " + (index+1).to_s + " of " + refs[:unpushed].length.to_s + ": " + file[:name] + " => " + file[:sha][0, 8]
         server.push(file[:sha])
-        if clean && server.exist?(file[:sha])
+        if clear && server.exist?(file[:sha])
           GitMedia::Clear.remove_cache_file(file, false)
         end
       end

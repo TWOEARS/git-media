@@ -8,8 +8,8 @@ module GitMedia
 
     def self.run!(opts)
       @server = GitMedia.get_transport
-      GitMedia::Pull.pull_media(opts[:dir], opts[:clean], @server)
-      GitMedia::Push.push_media(opts[:clean], @server)
+      GitMedia::Pull.pull_media(opts[:dir], opts[:clear], @server)
+      GitMedia::Push.push_media(opts[:clear], @server)
     end
 
   end

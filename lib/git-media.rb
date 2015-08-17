@@ -236,20 +236,20 @@ module GitMedia
         require 'git-media/pull'
         opts = Trollop::options do
           opt :dir, "Pull only files for the current dir and subdirs"
-          opt :clean, "Remove local cache files after uploading"
+          opt :clear, "Remove local cache files after uploading"
         end
         GitMedia::Pull.run!(opts)
       when "push"
         require 'git-media/push'
         opts = Trollop::options do
-          opt :clean, "Remove local cache files after uploading"
+          opt :clear, "Remove local cache files after uploading"
         end
         GitMedia::Push.run!(opts)
       when "sync"
         require 'git-media/sync'
         opts = Trollop::options do
           opt :dir, "Pull only files for the current dir and subdirs"
-          opt :clean, "Remove local cache files after uploading"
+          opt :clear, "Remove local cache files after uploading"
         end
         GitMedia::Sync.run!(opts)
       when 'status'
@@ -288,14 +288,14 @@ usage: git media sync|pull|push|status|list|clear
 
   sync                 Sync files with remote server (runs pull and push)
                        --dir:  Pull only files under current dir
-                       --clean:  Remove local cache files after uploading
+                       --clear:  Remove local cache files after uploading
 
   pull                 Download files from remote server
                        --dir:  Pull only files under current dir
-                       --clean:  Remove local cache files after uploading
+                       --clear:  Remove local cache files after uploading
 
   push                 Upload files to remote server
-                       --clean:  Remove local cache files after uploading
+                       --clear:  Remove local cache files after uploading
 
   status               Show number of (un)pulled, (un)pushed files
                        --dir:   Look only for pulled files under current dir
