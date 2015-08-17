@@ -30,6 +30,10 @@ module GitMedia
         File.exist?(@path)
       end
 
+      def has_file?(file)
+        File.exist?(File.join(@path, file))
+      end
+
       def put_file(sha, from_file)
         to_file = File.join(@path, sha)
         if File.exists?(from_file)
