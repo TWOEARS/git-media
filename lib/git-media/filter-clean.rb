@@ -30,7 +30,6 @@ module GitMedia
       else
 
         hashfunc = Digest::SHA1.new
-        start = Time.now
 
         # read in buffered chunks of the data
         #  calculating the SHA and copying to a tempfile
@@ -58,10 +57,9 @@ module GitMedia
         FileUtils.mv(tempfile.path, media_file)
         File.chmod(0640, media_file)
 
-        elapsed = Time.now - start
 
         if info_output
-          STDERR.puts('Saving media : ' + hx + ' : ' + elapsed.to_s)
+          STDERR.puts('Saving media : ' + hx)
         end
       end
     end
