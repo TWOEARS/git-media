@@ -149,64 +149,6 @@ module GitMedia
       end
       GitMedia::Transport::Local.new(path)
 
-    when "s3"
-      require 'git-media/transport/s3'
-
-      bucket = `git config git-media.s3bucket`.chomp
-      key = `git config git-media.s3key`.chomp
-      secret = `git config git-media.s3secret`.chomp
-      if bucket === ""
-        raise "git-media.s3bucket not set for s3 transport"
-      end
-      if key === ""
-        raise "git-media.s3key not set for s3 transport"
-      end
-      if secret === ""
-        raise "git-media.s3secret not set for s3 transport"
-      end
-      GitMedia::Transport::S3.new(bucket, key, secret)
-
-    when "atmos"
-      require 'git-media/transport/atmos_client'
-
-      endpoint = `git config git-media.endpoint`.chomp
-      uid = `git config git-media.uid`.chomp
-      secret = `git config git-media.secret`.chomp
-      tag = `git config git-media.tag`.chomp
-
-      if endpoint == ""
-        raise "git-media.endpoint not set for atmos transport"
-      end
-
-      if uid == ""
-        raise "git-media.uid not set for atmos transport"
-      end
-
-      if secret == ""
-        raise "git-media.secret not set for atmos transport"
-      end
-      GitMedia::Transport::AtmosClient.new(endpoint, uid, secret, tag)
-    when "webdav"
-      require 'git-media/transport/webdav'
-
-      url = `git config git-media.webdavurl`.chomp
-      user = `git config git-media.webdavuser`.chomp
-      password = `git config git-media.webdavpassword`.chomp
-      verify_server = `git config git-media.webdavverifyserver`.chomp == 'true'
-      binary_transfer = `git config git-media.webdavbinarytransfer`.chomp == 'true'
-      if url == ""
-        raise "git-media.webdavurl not set for webdav transport"
-      end
-      if user == ""
-        user, password = self.get_credentials_from_netrc(url)
-      end
-      if !user
-        raise "git-media.webdavuser not set for webdav transport"
-      end
-      if !password
-        raise "git-media.webdavpassword not set for webdav transport"
-      end
-      GitMedia::Transport::WebDav.new(url, user, password, verify_server, binary_transfer)
     else
       raise "Invalid transport #{transport}"
     end

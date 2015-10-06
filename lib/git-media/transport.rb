@@ -45,10 +45,6 @@ module GitMedia
         []
       end
 
-      #def get_unpushed(files)
-      #  files
-      #end
-
     end
   end
 end

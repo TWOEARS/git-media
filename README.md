@@ -24,19 +24,15 @@ be automatically downloaded, otherwise they are downloaded when you sync.
 Next you need to configure git to tell it where you want to store the large files.
 There are five options:
 
-1. Storing remotely in Amazon's S3
-2. Storing locally in a filesystem path
-3. Storing remotely via SCP (should work with any SSH server)
-4. Storing remotely in atmos
-5. Storing remotely via WebDav
+1. Storing locally in a filesystem path
+2. Storing remotely via SCP (should work with any SSH server)
 
 Here are the relevant sections that should go either in `~/.gitconfig` (for global settings)
 or in `clone/.git/config` (for per-repo settings).
 
 ```ini
 [git-media]
-	transport = <scp|local|s3|atmos|webdav>
-	autodownload = <true|false>
+	transport = <scp|local>
 
 	# settings for scp transport
 	scpuser = <user>
@@ -45,27 +41,6 @@ or in `clone/.git/config` (for per-repo settings).
 
 	# settings for local transport
 	localpath = <local_filesystem_path>
-
-	# settings for s3 transport
-	s3bucket = <name_of_bucket>
-	s3key    = <s3 access key>
-	s3secret = <s3 secret key>
-
-	# settings for atmos transport
-	endpoint = <atmos server>
-	uid      = <atmos_uid>
-	secret   = <atmos secret key>
-	tag      = <atmos object tag>
-
-	# settings for webdav transport
-	webdavurl = <webdav root url>
-	# user and password are taken from netrc if omitted
-	webdavuser = <user for basic auth, optional>
-	webdavpassword = <password for basic auth>
-
-	webdavverifyserver = <Net::Dav.verify_server setting, true by default>
-	webdavbinarytransfer = <Net::Dav.new :curl option value, false by default>
-
 ```
 
 
@@ -88,14 +63,6 @@ If you want to replace file in git-media with changed version (for example, vide
 you need to explicitly tell git that some media files has changed:
 
     $ git update-index --really-refresh
-
-
-## Config Settings
-
-If autodownload is set to true, required files will automatically be
-downloaded when checking out or pulling. Default is false
-
-	$ git config --global media.autodownload true
 
 
 ## Installing
