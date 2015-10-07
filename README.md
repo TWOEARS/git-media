@@ -46,16 +46,32 @@ or in `clone/.git/config` (for per-repo settings).
 
 ## Usage
 
-	(in repo - repeatedly)
-	$ (hack, stage, commit)
-	$ git media sync
+For an overview of all commands, run
 
-You can also check the status of your media files via
+    $ git media help
+
+You can check the status of your media files via
 
 	$ git media status
 
-Which will show you files that are waiting to be uploaded and how much data
-that is. If you want to upload & delete the local cache of media files, run:
+Which will show you files that are waiting to be uploaded and how much data that
+is. It will also provide some help on what you can do next.
+
+If you want to pull all available media files, run
+
+    $ git media pull
+
+If you want to download only the media files in your current folder and its
+subfolders, run
+
+    $ git media pull --dir
+
+If you have added and commited new data to your git repository, you can upload
+them via
+
+    $ git media push
+
+If you want to delete the local cache of media files, run:
 
 	$ git media clear
 
