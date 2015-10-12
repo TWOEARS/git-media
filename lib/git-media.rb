@@ -2,7 +2,6 @@ require 'rubygems'
 require 'bundler/setup'
 require 'trollop'
 require 'fileutils'
-require 'ruby-prof'
 
 module GitMedia
 
