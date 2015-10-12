@@ -90,6 +90,9 @@ you need to explicitly tell git that some media files has changed:
     $ gem build git-media.gemspec
     $ sudo gem install git-media-*.gem
 
+In order to use bundle you will need most probably the ruby-dev package
+installed on your system.
+
 If you have file permissions problems running `bundle install`, you could
 try instead:
 
