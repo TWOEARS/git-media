@@ -3,6 +3,34 @@
 GitMedia extension allows you to use Git with large media files
 without storing the media in Git itself.
 
+## Prerequisities
+
+### Linux/Mac
+
+* Ruby (>= v2.0) as part of package ruby2.0-dev
+
+### Windows
+
+* [Ruby](http://rubyinstaller.org/) (>= v2.0)
+* Git Bash as part of [Git for Windows](https://git-for-windows.github.io/)
+
+## Installing
+
+    $ git clone git@github.com:alebedev/git-media.git
+    $ cd git-media
+    $ sudo gem install bundler
+    $ bundle install
+    $ gem build git-media.gemspec
+    $ sudo gem install git-media-*.gem
+
+In order to use bundle you will need most probably the ruby-dev package
+installed on your system.
+
+If you have file permissions problems running `bundle install`, you could
+try instead:
+
+    $ bundle install --path ~/.gem
+
 ## Configuration
 
 Setup the attributes filter settings.
@@ -79,24 +107,6 @@ If you want to replace file in git-media with changed version (for example, vide
 you need to explicitly tell git that some media files has changed:
 
     $ git update-index --really-refresh
-
-
-## Installing
-
-    $ git clone git@github.com:alebedev/git-media.git
-    $ cd git-media
-    $ sudo gem install bundler
-    $ bundle install
-    $ gem build git-media.gemspec
-    $ sudo gem install git-media-*.gem
-
-In order to use bundle you will need most probably the ruby-dev package
-installed on your system.
-
-If you have file permissions problems running `bundle install`, you could
-try instead:
-
-    $ bundle install --path ~/.gem
 
 ## Notes for Windows
 
