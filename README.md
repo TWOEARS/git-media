@@ -16,7 +16,7 @@ without storing the media in Git itself.
 
 ## Installing
 
-    $ git clone git@github.com:alebedev/git-media.git
+    $ git clone git@github.com:TWOEARS/git-media.git
     $ cd git-media
     $ sudo gem install bundler
     $ bundle install
