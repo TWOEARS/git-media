@@ -19,18 +19,22 @@ without storing the media in Git itself.
 The installation is performed via command line (e.g. bash under Linux and git
 bash under Windwos):
 
+### Windows
+
+    $ git clone git@github.com:TWOEARS/git-media.git
+    $ cd git-media
+    $ gem install bundler
+    $ bundle install
+    $ gem build git-media.gemspec
+    $ gem install git-media-*.gem
+
+### Linux
+
     $ git clone git@github.com:TWOEARS/git-media.git
     $ cd git-media
     $ sudo gem install bundler
     $ bundle install
     $ gem build git-media.gemspec
-
-To finally install it the next command under Windows will be
-
-    $ gem install git-media-*.gem
-
-and under Linux most probably
-
     $ sudo gem install git-media-*.gem
 
 In order to use bundle you will need most probably the ruby-dev package
