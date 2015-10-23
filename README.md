@@ -43,12 +43,6 @@ try instead:
 
 ## Configuration
 
-Setup the attributes filter settings.
-
-	(once after install)
-	$ git config filter.media.clean "git-media filter-clean"
-	$ git config filter.media.smudge "git-media filter-smudge"
-
 Setup the `.gitattributes` file to map extensions to the filter.
 
 	(in repo - once)
@@ -69,6 +63,9 @@ Here are the relevant sections that should go either in `~/.gitconfig` (for glob
 or in `clone/.git/config` (for per-repo settings).
 
 ```ini
+[filter "media"]
+    clean = git-media filter-clean
+    smudge = git-media filter-smudge
 [git-media]
 	transport = <scp|local>
 
