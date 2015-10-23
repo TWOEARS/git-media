@@ -95,6 +95,9 @@ You can check the status of your media files via
 
 Which will show you files that are waiting to be uploaded and how much data that
 is. It will also provide some help on what you can do next.
+It will most probably ask you for the password of your server. If you want to
+not show your password in clean text during typing, you should install the
+ruby-termios package.
 
 If you want to pull all available media files, run
 
