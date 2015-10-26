@@ -23,7 +23,7 @@ bash under Windwos):
 
 ### Windows
 
-    $ git clone git@github.com:TWOEARS/git-media.git
+    $ git clone https://github.com/TWOEARS/git-media.git
     $ cd git-media
     $ gem install bundler
     $ bundle install
@@ -32,7 +32,7 @@ bash under Windwos):
 
 ### Linux
 
-    $ git clone git@github.com:TWOEARS/git-media.git
+    $ git clone https://github.com/TWOEARS/git-media.git
     $ cd git-media
     $ sudo gem install bundler
     $ bundle install
