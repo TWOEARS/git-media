@@ -12,7 +12,7 @@ without storing the media in Git itself.
 ### Windows
 
 * [Ruby](http://rubyinstaller.org/) (>= v2.0)
-  * it is recommended to check "Add ex... to Path" and "Associate .rb ... files" during the installation
+  * it is recommended to enable *"Add Ruby executables to your PATH"* and *"Associate .rb and .rbw files with this Ruby installation"* during the installation
   * Ruby might be blocked by the native Windows Firewall
 * Git Bash as part of [Git for Windows](https://git-for-windows.github.io/)
 
